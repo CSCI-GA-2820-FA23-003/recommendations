@@ -5,6 +5,7 @@ All of the models are stored in this module
 """
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from enum import Enum
 
 logger = logging.getLogger("flask.app")
 
@@ -15,14 +16,19 @@ db = SQLAlchemy()
 # Function to initialize the database
 def init_db(app):
     """ Initializes the SQLAlchemy app """
-    YourResourceModel.init_db(app)
+    Recommendation.init_db(app)
 
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
+class RecommendationType(Enum):
+    """Enumeration of valid Recommendation Types"""
+    CROSSSELL = 0
+    UPSELL = 1
+    ACCESSORY = 2
 
-class YourResourceModel(db.Model):
+class Recommendation(db.Model):
     """
     Class that represents a YourResourceModel
     """
@@ -32,6 +38,14 @@ class YourResourceModel(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
+    recommendation_id = db.Column(db.Integer)
+    recommendation_name = db.Column(db.String(63))
+    type = db.Column(
+        db.Enum(RecommendationType),
+        nullable=False, server_default=(RecommendationType.UPSELL.name)
+    )
+    number_of_likes = db.Column(db.Integer, default=0)
+    number_of_dislikes = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f"<YourResourceModel {self.name} id=[{self.id}]>"
