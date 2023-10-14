@@ -24,7 +24,7 @@ class DataValidationError(Exception):
 
 
 class RecommendationType(Enum):
-    """Enumeration of valid Recommendation Types"""
+    """Enumeration of valid Recommendation types"""
 
     CROSSSELL = 0
     UPSELL = 1
@@ -46,7 +46,7 @@ class Recommendation(db.Model):
     type = db.Column(
         db.Enum(RecommendationType),
         nullable=False,
-        server_default=(RecommendationType.CROSSSELL.name),
+        default=RecommendationType.CROSSSELL,
     )
     number_of_likes = db.Column(db.Integer, default=0)
     number_of_dislikes = db.Column(db.Integer, default=0)
@@ -77,7 +77,7 @@ class Recommendation(db.Model):
         db.session.commit()
 
     def serialize(self):
-        """Serializes Recommendation into a dictionary"""
+        """Serializes a Recommendation into a dictionary"""
         return {
             "id": self.id,
             "name": self.name,
@@ -90,7 +90,7 @@ class Recommendation(db.Model):
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Recommendation from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -101,6 +101,10 @@ class Recommendation(db.Model):
             self.recommendation_id = data["recommendation_id"]
             self.recommendation_name = data["recommendation_name"]
             self.type = data["type"]
+            if not isinstance(self.type, RecommendationType):
+                raise DataValidationError(
+                    "invalid type for Recommendation Type:" + str(type(self.type))
+                )
             self.number_of_likes = data["number_of_likes"]
             self.number_of_dislikes = data["number_of_dislikes"]
 
@@ -111,8 +115,12 @@ class Recommendation(db.Model):
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Recommendation: body of request contained bad or no data - "
-                "Error message: " + error
+                "Error message: " + error.args[0]
             ) from error
+        except ValueError as error:
+            raise DataValidationError("Invalid value: " + error.args[0]) from error
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute " + error.args[0]) from error
         return self
 
     @classmethod
