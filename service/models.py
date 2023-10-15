@@ -7,7 +7,6 @@ import logging
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 
-
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
@@ -78,7 +77,7 @@ class Recommendation(db.Model):
         db.session.commit()
 
     def serialize(self):
-        """Serializes a YourResourceModel into a dictionary"""
+        """Serializes a Recommendation into a dictionary"""
         return {
             "id": self.id,
             "name": self.name,
@@ -91,7 +90,7 @@ class Recommendation(db.Model):
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Recommendation from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -119,7 +118,7 @@ class Recommendation(db.Model):
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Recommendation: body of request contained bad or no data - "
-                "Error message: " + error
+                "Error message: " + error.args[0]
             ) from error
         except ValueError as error:
             raise DataValidationError("Invalid value: " + error.args[0]) from error

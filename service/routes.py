@@ -6,7 +6,11 @@ Describe what your service does here
 
 from flask import jsonify, request, url_for, abort
 from service.common import status  # HTTP Status Codes
+<<<<<<< HEAD
 from service.models import Recommendation, RecommendationType
+=======
+from service.models import Recommendation
+>>>>>>> master
 
 # Import Flask application
 from . import app
@@ -18,11 +22,10 @@ from . import app
 @app.route("/")
 def index():
     """Root URL response"""
-    return {"status": status.HTTP_200_OK}
-    # return (
-    #     "Reminder: return some useful information in json format about the service here",
-    #     status.HTTP_200_OK,
-    # )
+    return (
+        "Reminder: return some useful information in json format about the service here",
+        status.HTTP_200_OK,
+    )
 
 
 ######################################################################
