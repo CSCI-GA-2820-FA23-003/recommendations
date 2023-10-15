@@ -40,4 +40,4 @@ def post():
     recommendation = Recommendation()
     recommendation.deserialize(data)
 
-    return recommendation.serialize(), status.HTTP_200_OK
+    return recommendation.serialize(), status.HTTP_201_CREATED

@@ -63,7 +63,7 @@ class TestYourResourceServer(TestCase):
         )
 
         # Check the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
 
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
@@ -97,7 +97,7 @@ class TestYourResourceServer(TestCase):
         )
 
         # Check the response status code
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
 
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
