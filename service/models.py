@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 
 logger = logging.getLogger("flask.app")
+logger.setLevel(0)
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
@@ -83,7 +84,7 @@ class Recommendation(db.Model):
             "name": self.name,
             "recommendation_id": self.recommendation_id,
             "recommendation_name": self.recommendation_name,
-            "type": self.type.value,
+            "type": self.type.name,
             "number_of_likes": self.number_of_likes,
             "number_of_dislikes": self.number_of_dislikes,
         }
@@ -104,10 +105,12 @@ class Recommendation(db.Model):
                 self.type = RecommendationType.CROSSSELL
             else:
                 self.type = RecommendationType[data["type"]]
-                if not isinstance(self.type, RecommendationType):
-                    raise DataValidationError(
-                        "invalid type for Recommendation Type:" + str(type(self.type))
-                    )
+
+            if not isinstance(self.type, RecommendationType):
+                raise DataValidationError(
+                    "invalid type for Recommendation Type:" + str(type(self.type))
+                )
+
             self.number_of_likes = data["number_of_likes"]
             self.number_of_dislikes = data["number_of_dislikes"]
 

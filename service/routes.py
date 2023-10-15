@@ -7,7 +7,9 @@ Describe what your service does here
 from flask import jsonify, request, url_for, abort
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation, RecommendationType
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 
 # Import Flask application
 from . import app
@@ -39,5 +41,6 @@ def post():
 
     recommendation = Recommendation()
     recommendation.deserialize(data)
+    # recommendation.create()
 
     return recommendation.serialize(), status.HTTP_201_CREATED

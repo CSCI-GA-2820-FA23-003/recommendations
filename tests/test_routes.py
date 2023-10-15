@@ -10,8 +10,9 @@ import logging
 import json
 from unittest import TestCase
 from service import app
-from service.models import db
+from service.models import db, Recommendation
 from service.common import status  # HTTP Status Codes
+from tests.factories import RecommendationFactory
 
 
 ######################################################################
@@ -47,15 +48,8 @@ class TestYourResourceServer(TestCase):
 
     def test_post_recommendation(self):
         # Define a sample JSON data to send in the POST request
-        data = {
-            "id": "sampleRecommId",
-            "name": "Sample Recommendation",
-            "recommendation_id": 12345,
-            "recommendation_name": "Another Sample Recommendation",
-            "type": "CROSSSELL",
-            "number_of_likes": 25,
-            "number_of_dislikes": 5,
-        }
+        fake_rec = RecommendationFactory()
+        data = fake_rec.serialize()
 
         # Send a POST request to the /recommendation route with the sample data
         response = self.client.post(
@@ -68,28 +62,15 @@ class TestYourResourceServer(TestCase):
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
 
-        # Verify that the response data matches the expected data
-        expected_data = {
-            "id": "sampleRecommId",
-            "name": "Sample Recommendation",
-            "recommendation_id": 12345,
-            "recommendation_name": "Another Sample Recommendation",
-            "type": 0,
-            "number_of_likes": 25,
-            "number_of_dislikes": 5,
-        }
-        self.assertEqual(response_data, expected_data)
+        self.assertEqual(response_data, data)
 
     def test_post_recommendation_for_no_type(self):
         # Define a sample JSON data to send in the POST request
-        data = {
-            "id": "sampleRecommId",
-            "name": "Sample Recommendation",
-            "recommendation_id": 12345,
-            "recommendation_name": "Another Sample Recommendation",
-            "number_of_likes": 25,
-            "number_of_dislikes": 5,
-        }
+        fake_rec = RecommendationFactory()
+        data = fake_rec.serialize()
+
+        if "type" in data:
+            del data["type"]
 
         # Send a POST request to the /recommendation route with the sample data
         response = self.client.post(
@@ -102,28 +83,17 @@ class TestYourResourceServer(TestCase):
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
 
+        # Since default type is CROSSSELL, the default will have CROSSSELL as its type
+        expected_data = data
+        expected_data["type"] = "CROSSSELL"
+
         # Verify that the response data matches the expected data
-        expected_data = {
-            "id": "sampleRecommId",
-            "name": "Sample Recommendation",
-            "recommendation_id": 12345,
-            "recommendation_name": "Another Sample Recommendation",
-            "type": 0,
-            "number_of_likes": 25,
-            "number_of_dislikes": 5,
-        }
         self.assertEqual(response_data, expected_data)
 
     def test_bad_path_post_recommendation(self):
         # Define a sample JSON data to send in the POST request
-        data = {
-            "id": "sampleRecommId",
-            "name": "Sample Recommendation",
-            "recommendation_id": 12345,
-            "recommendation_name": "Another Sample Recommendation",
-            "number_of_likes": 25,
-            "number_of_dislikes": 5,
-        }
+        fake_rec = RecommendationFactory()
+        data = fake_rec.serialize()
 
         # Send a POST request to the /recommendation route with the sample data
         response = self.client.post(
