@@ -5,6 +5,7 @@ All of the models are stored in this module
 """
 import logging
 from flask_sqlalchemy import SQLAlchemy
+from enum import Enum
 
 logger = logging.getLogger("flask.app")
 
@@ -14,15 +15,23 @@ db = SQLAlchemy()
 
 # Function to initialize the database
 def init_db(app):
-    """ Initializes the SQLAlchemy app """
-    YourResourceModel.init_db(app)
+    """Initializes the SQLAlchemy app"""
+    Recommendation.init_db(app)
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
 
 
-class YourResourceModel(db.Model):
+class RecommendationType(Enum):
+    """Enumeration of valid Recommendation types"""
+
+    CROSSSELL = 0
+    UPSELL = 1
+    ACCESSORY = 2
+
+
+class Recommendation(db.Model):
     """
     Class that represents a YourResourceModel
     """
@@ -32,6 +41,15 @@ class YourResourceModel(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63))
+    recommendation_id = db.Column(db.Integer)
+    recommendation_name = db.Column(db.String(63))
+    type = db.Column(
+        db.Enum(RecommendationType),
+        nullable=False,
+        default=RecommendationType.CROSSSELL,
+    )
+    number_of_likes = db.Column(db.Integer, default=0)
+    number_of_dislikes = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f"<YourResourceModel {self.name} id=[{self.id}]>"
@@ -53,38 +71,61 @@ class YourResourceModel(db.Model):
         db.session.commit()
 
     def delete(self):
-        """ Removes a YourResourceModel from the data store """
+        """Removes a YourResourceModel from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a YourResourceModel into a dictionary """
-        return {"id": self.id, "name": self.name}
+        """Serializes a Recommendation into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "recommendation_id": self.recommendation_id,
+            "recommendation_name": self.recommendation_name,
+            "type": self.type,
+            "number_of_likes": self.number_of_likes,
+            "number_of_dislikes": self.number_of_dislikes,
+        }
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Recommendation from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
         """
         try:
             self.name = data["name"]
+            self.id = data["id"]
+            self.recommendation_id = data["recommendation_id"]
+            self.recommendation_name = data["recommendation_name"]
+            self.type = data["type"]
+            if not isinstance(self.type, RecommendationType):
+                raise DataValidationError(
+                    "invalid type for Recommendation Type:" + str(type(self.type))
+                )
+            self.number_of_likes = data["number_of_likes"]
+            self.number_of_dislikes = data["number_of_dislikes"]
+
         except KeyError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: missing " + error.args[0]
+                "Invalid Recommendation: missing " + error.args[0]
             ) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data - "
-                "Error message: " + error
+                "Invalid Recommendation: body of request contained bad or no data - "
+                "Error message: " + error.args[0]
             ) from error
+        except ValueError as error:
+            raise DataValidationError("Invalid value: " + error.args[0]) from error
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute " + error.args[0]) from error
         return self
 
     @classmethod
     def init_db(cls, app):
-        """ Initializes the database session """
+        """Initializes the database session"""
         logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
@@ -94,13 +135,13 @@ class YourResourceModel(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the YourResourceModels in the database """
+        """Returns all of the YourResourceModels in the database"""
         logger.info("Processing all YourResourceModels")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a YourResourceModel by it's ID """
+        """Finds a YourResourceModel by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
