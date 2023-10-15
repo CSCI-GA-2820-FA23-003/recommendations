@@ -6,11 +6,8 @@ Describe what your service does here
 
 from flask import jsonify, request, url_for, abort
 from service.common import status  # HTTP Status Codes
-<<<<<<< HEAD
 from service.models import Recommendation, RecommendationType
-=======
-from service.models import Recommendation
->>>>>>> master
+
 
 # Import Flask application
 from . import app
