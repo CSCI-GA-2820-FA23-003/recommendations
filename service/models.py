@@ -8,7 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
 
 logger = logging.getLogger("flask.app")
-logger.setLevel(0)
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
@@ -41,7 +40,7 @@ class Recommendation(db.Model):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63), nullable=False)
+    name = db.Column(db.String(63))
     recommendation_id = db.Column(db.Integer)
     recommendation_name = db.Column(db.String(63))
     type = db.Column(

@@ -7,10 +7,9 @@ Test cases can be run with the following:
 """
 import os
 import logging
-import json
 from unittest import TestCase
-from service import app, routes
-from service.models import db, Recommendation
+from service import app
+from service.models import db
 from service.common import status  # HTTP Status Codes
 from tests.factories import RecommendationFactory
 
