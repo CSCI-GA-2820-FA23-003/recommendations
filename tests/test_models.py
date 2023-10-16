@@ -63,7 +63,7 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(data["name"], fake_rec.name)
         self.assertEqual(data["recommendation_id"], fake_rec.recommendation_id)
         self.assertEqual(data["recommendation_name"], fake_rec.recommendation_name)
-        self.assertEqual(data["type"], fake_rec.type)
+        self.assertEqual(data["type"], fake_rec.type.name)
         self.assertEqual(data["number_of_likes"], fake_rec.number_of_likes)
         self.assertEqual(data["number_of_dislikes"], fake_rec.number_of_dislikes)
 
@@ -79,7 +79,7 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(
             recommendation.recommendation_name, data["recommendation_name"]
         )
-        self.assertEqual(recommendation.type, data["type"])
+        self.assertEqual(recommendation.type, RecommendationType[data["type"]])
         self.assertEqual(recommendation.number_of_likes, data["number_of_likes"])
         self.assertEqual(recommendation.number_of_dislikes, data["number_of_dislikes"])
 

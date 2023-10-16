@@ -41,7 +41,7 @@ class Recommendation(db.Model):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63))
+    name = db.Column(db.String(63), nullable=False)
     recommendation_id = db.Column(db.Integer)
     recommendation_name = db.Column(db.String(63))
     type = db.Column(
@@ -59,7 +59,7 @@ class Recommendation(db.Model):
         """
         Creates a Recommendation to the database
         """
-        logger.info("Creating %s", self.name)
+        logger.info("Creating %s", self.id)
         self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
         db.session.commit()
@@ -101,6 +101,9 @@ class Recommendation(db.Model):
             self.id = data["id"]
             self.recommendation_id = data["recommendation_id"]
             self.recommendation_name = data["recommendation_name"]
+            self.number_of_likes = data["number_of_likes"]
+            self.number_of_dislikes = data["number_of_dislikes"]
+
             if "type" not in data or data["type"] is None:
                 self.type = RecommendationType.CROSSSELL
             else:
@@ -110,9 +113,6 @@ class Recommendation(db.Model):
                 raise DataValidationError(
                     "invalid type for Recommendation Type:" + str(type(self.type))
                 )
-
-            self.number_of_likes = data["number_of_likes"]
-            self.number_of_dislikes = data["number_of_dislikes"]
 
         except KeyError as error:
             raise DataValidationError(

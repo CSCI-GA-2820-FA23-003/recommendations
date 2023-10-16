@@ -9,7 +9,7 @@ import os
 import logging
 import json
 from unittest import TestCase
-from service import app
+from service import app, routes
 from service.models import db, Recommendation
 from service.common import status  # HTTP Status Codes
 from tests.factories import RecommendationFactory
@@ -61,6 +61,12 @@ class TestYourResourceServer(TestCase):
 
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
+
+        if "id" in response_data:
+            del response_data["id"]
+
+        if "id" in data:
+            del data["id"]
 
         self.assertEqual(response_data, data)
 

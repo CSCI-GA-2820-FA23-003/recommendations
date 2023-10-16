@@ -41,6 +41,6 @@ def post():
 
     recommendation = Recommendation()
     recommendation.deserialize(data)
-    # recommendation.create()
+    recommendation.create()
 
     return recommendation.serialize(), status.HTTP_201_CREATED
