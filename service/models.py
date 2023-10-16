@@ -104,7 +104,7 @@ class Recommendation(db.Model):
             self.number_of_dislikes = data["number_of_dislikes"]
 
             if "type" not in data or data["type"] is None:
-                self.type = RecommendationType.CROSSSELL
+                self.type = RecommendationType["CROSSSELL"]
             else:
                 self.type = RecommendationType[data["type"]]
 

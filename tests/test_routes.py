@@ -7,9 +7,10 @@ Test cases can be run with the following:
 """
 import os
 import logging
+import json
 from unittest import TestCase
 from service import app
-from service.models import db
+from service.models import db, RecommendationType
 from service.common import status  # HTTP Status Codes
 from tests.factories import RecommendationFactory
 
@@ -90,10 +91,16 @@ class TestYourResourceServer(TestCase):
 
         # Since default type is CROSSSELL, the default will have CROSSSELL as its type
         expected_data = data
-        expected_data["type"] = "CROSSSELL"
+        expected_data["type"] = RecommendationType.CROSSSELL.name
+
+        if "id" in response_data:
+            del response_data["id"]
+
+        if "id" in data:
+            del data["id"]
 
         # Verify that the response data matches the expected data
-        self.assertEqual(response_data, expected_data)
+        self.assertEqual(response_data, data)
 
     def test_bad_path_post_recommendation(self):
         # Define a sample JSON data to send in the POST request
