@@ -44,5 +44,35 @@ def index():
     # Delete always returns 204
 #    return "", status.HTTP_204_NO_CONTENT
 
+@app.route("/recommendation/<int:id>", methods=['GET'])
 
+def read(id):
+    app.logger.info(f"Read the recommendation with ID: {id}")
+    recommendation = Recommendation.find(id)
+
+    if recommendation is None:
+        abort(status.HTTP_404_NOT_FOUND, f"Recommendation with ID {id} does not exist")
+
+    #if the recommendation is a list of recomendation relation
+    if isinstance(recommendation, list):
+        output = []
+        for r in recommendation:
+            output.append({
+                "recommendation id": r.recommendation_id,
+                "recommendation name": r.recommendation_name,
+                "type":str(r.type),
+                'number of likes':r.number_of_likes,
+                "number of dislikes":r.number_of_dislikes
+            })
+        return output
+    else:
+        
+        output=[{
+                "recommendation id": recommendation.recommendation_id,
+                "recommendation name": recommendation.recommendation_name,
+                "type":str(recommendation.type),
+                'number of likes':recommendation.number_of_likes,
+                "number of dislikes":recommendation.number_of_dislikes
+            }]
+        return output
     
