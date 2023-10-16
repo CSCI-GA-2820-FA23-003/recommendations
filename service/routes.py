@@ -29,3 +29,21 @@ def index():
 ######################################################################
 
 # Place your REST API code here ...
+
+def delete(name):
+    """ it Request to Delete recommendation by name """
+    app.logger.info("Delete a recommendation on the list")
+    
+    recommendation = Recommendation.find(name)
+    
+    # If it exists delete it, if not delete is unsuccessful
+    if recommendation is None:
+        abort(status.HTTP_404_NOT_FOUND, "Recommendation {name} does not exist")
+    
+    recommendation.delete()
+    
+    # Delete always returns 204
+    return "", status.HTTP_204_NO_CONTENT
+
+
+    
