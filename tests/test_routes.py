@@ -115,17 +115,17 @@ class TestYourResourceServer(TestCase):
         # Check the response status code
         self.assertEqual(response.status_code, 404)
         
-    #def test_delete(self):
-    #    """ It should delete a recommendation on the list """
-    #    target = RecommendationFactory()
-    #    target.create()
-    #    resp = self.client.post(
-    #        "/recommendations", json = recommendation.serialize()
-    #        )
-    #    self.assertEqual(resp.status_code, status.HTTP_201_CREATED, "create success")
+    def test_delete(self):
+        """ It should delete a recommendation on the list """
+        target = RecommendationFactory()
+        target.create()
+        resp = self.client.post(
+            "/recommendations", json = recommendation.serialize()
+            )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, "create success")
 
-    #    recommendation = resp.get_json()
+        recommendation = resp.get_json()
 
-    #    self.assertEqual = (Recommendation.all(), [], "delete unsuccessful")
-    #    recommendation.delete()
-    #    self.assertEqual = (Recommendation.all(), [], "delete success")
+        self.assertEqual = (Recommendation.all(), [], "delete unsuccessful")
+        recommendation.delete()
+        self.assertEqual = (Recommendation.all(), [], "delete success")

@@ -44,16 +44,17 @@ def post():
 
     return recommendation.serialize(), status.HTTP_201_CREATED
 
-# def delete(name):
-#    app.logger.info("Delete a recommendation on the list")
-#    
-#    recommendation = Recommendation.find(name)
-#    
-    # If it exists delete it, if not delete is unsuccessful
-#    if recommendation is None:
-#        abort(status.HTTP_404_NOT_FOUND, "Recommendation {name} does not exist")
+@app.route("/recommendation", methods=["DELETE"])
+def delete(recommendation_id):
+    app.logger.info("Delete a recommendation on the list")
     
-#    recommendation.delete()
+    recommendation = Recommendation.find(recommendation_id)
+    
+    # If it exists delete it, if not delete is unsuccessful
+    if recommendation is None:
+        abort(status.HTTP_404_NOT_FOUND, "Recommendation {recomendation_id} does not exist")
+    
+    recommendation.delete()
     
     # Delete always returns 204
-#    return "", status.HTTP_204_NO_CONTENT
+    return "", status.HTTP_204_NO_CONTENT
