@@ -6,7 +6,10 @@ Describe what your service does here
 
 from flask import jsonify, request, url_for, abort
 from service.common import status  # HTTP Status Codes
-from service.models import Recommendation
+from service.models import Recommendation, RecommendationType
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 # Import Flask application
 from . import app
@@ -30,6 +33,17 @@ def index():
 
 # Place your REST API code here ...
 
+@app.route("/recommendation", methods=["POST"])
+def post():
+    """Root URL response"""
+    data = request.json
+
+    recommendation = Recommendation()
+    recommendation.deserialize(data)
+    recommendation.create()
+
+    return recommendation.serialize(), status.HTTP_201_CREATED
+
 # def delete(name):
 #    app.logger.info("Delete a recommendation on the list")
 #    
@@ -43,6 +57,3 @@ def index():
     
     # Delete always returns 204
 #    return "", status.HTTP_204_NO_CONTENT
-
-
-    

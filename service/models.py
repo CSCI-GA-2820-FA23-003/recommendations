@@ -56,9 +56,9 @@ class Recommendation(db.Model):
 
     def create(self):
         """
-        Creates a YourResourceModel to the database
+        Creates a Recommendation to the database
         """
-        logger.info("Creating %s", self.name)
+        logger.info("Creating %s", self.id)
         self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
         db.session.commit()
@@ -83,7 +83,7 @@ class Recommendation(db.Model):
             "name": self.name,
             "recommendation_id": self.recommendation_id,
             "recommendation_name": self.recommendation_name,
-            "type": self.type,
+            "type": self.type.name,
             "number_of_likes": self.number_of_likes,
             "number_of_dislikes": self.number_of_dislikes,
         }
@@ -100,13 +100,18 @@ class Recommendation(db.Model):
             self.id = data["id"]
             self.recommendation_id = data["recommendation_id"]
             self.recommendation_name = data["recommendation_name"]
-            self.type = data["type"]
+            self.number_of_likes = data["number_of_likes"]
+            self.number_of_dislikes = data["number_of_dislikes"]
+
+            if "type" not in data or data["type"] is None:
+                self.type = RecommendationType["CROSSSELL"]
+            else:
+                self.type = RecommendationType[data["type"]]
+
             if not isinstance(self.type, RecommendationType):
                 raise DataValidationError(
                     "invalid type for Recommendation Type:" + str(type(self.type))
                 )
-            self.number_of_likes = data["number_of_likes"]
-            self.number_of_dislikes = data["number_of_dislikes"]
 
         except KeyError as error:
             raise DataValidationError(
