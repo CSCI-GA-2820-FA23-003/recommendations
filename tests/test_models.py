@@ -84,3 +84,25 @@ class TestYourResourceModel(unittest.TestCase):
         data["type"] = "hello"
         recommendation = Recommendation()
         self.assertRaises(DataValidationError, recommendation.deserialize, data)
+
+    def test_find(self):
+        """It should find a recommendation by id"""
+        target = RecommendationFactory()
+        target.create()
+
+        self.assertEqual = (
+            Recommendation.find(target.id),
+            target.id,
+            "find result unmatch",
+        )
+
+    def test_update(self):
+        target = RecommendationFactory()
+        target.create()
+
+        new_source_pid = 312
+        target.source_pid = new_source_pid
+        target.update()
+
+        fetched_target = Recommendation.find(target.id)
+        self.assertEqual(fetched_target.source_pid, new_source_pid)

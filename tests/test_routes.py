@@ -118,30 +118,41 @@ class TestYourResourceServer(TestCase):
         # Check the response status code
         self.assertEqual(response.status_code, 404)
 
-    def test_find(self, recommendation_id):
+    def test_find(self):
         """It should find a recommendation by id"""
         target = RecommendationFactory()
         target.create()
-        resp = self.client.post("/recommendations", json=recommendation.serialize())
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, "create success")
-
-        recommendation = resp.get_json()
 
         self.assertEqual = (
-            find(recommendation[recommendation_id]),
-            recommendation,
+            Recommendation.find(target.id),
+            target.id,
             "find result unmatch",
         )
 
     def test_delete(self):
-        """It should delete a recommendation on the list"""
+        """It should delete a recommendation if it is in the DB"""
         target = RecommendationFactory()
         target.create()
-        resp = self.client.post("/recommendations", json=target.serialize())
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED, "create success")
+        resp = self.client.post("/recommendation", json=target.serialize())
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         recommendation = resp.get_json()
 
-        self.assertEqual = (Recommendation.all(), [], "delete unsuccessful")
-        recommendation.delete()
-        self.assertEqual = (Recommendation.all(), [], "delete success")
+        resp = self.client.delete(f"/recommendation/{recommendation['id']}")
+
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_update_recommendation(self):
+        """It should update a recommendation"""
+        target = RecommendationFactory()
+        resp = self.client.post("/recommendation", json=target.serialize())
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+        new_target = resp.get_json()
+        new_target["name"] = "ABC"
+        response = self.client.put(
+            f"/recommendation/{new_target['id']}", json=new_target
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        update_recommendation = response.get_json()
+        self.assertEqual(update_recommendation["name"], "ABC")
