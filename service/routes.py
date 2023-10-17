@@ -47,7 +47,7 @@ def post():
 
 
 @app.route("/recommendation/<int:id>", methods=["DELETE"])
-def delete(self, id):
+def delete(id):
     """This will delete a recommendation based on a given recommendation id"""
     app.logger.info("Delete a recommendation with id: %s", id)
 
@@ -67,7 +67,7 @@ def delete(self, id):
 
 
 @app.route("/recommendation/<int:id>", methods=["PUT"])
-def put(self, id):
+def put(id):
     """This will update a recommendation given a recommendation id"""
     app.logger.info("Update a recommendation with id: %s", id)
     recommendation = Recommendation.find(id)
