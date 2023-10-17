@@ -33,6 +33,7 @@ def index():
 
 # Place your REST API code here ...
 
+
 @app.route("/recommendation", methods=["POST"])
 def post():
     """Root URL response"""
@@ -44,17 +45,22 @@ def post():
 
     return recommendation.serialize(), status.HTTP_201_CREATED
 
+
 @app.route("/recommendation", methods=["DELETE"])
-def delete(recommendation_id):
+def delete(self, recommendation_id):
+    """This will delete a recommendation based on a given recommendation id"""
     app.logger.info("Delete a recommendation on the list")
-    
+
     recommendation = Recommendation.find(recommendation_id)
-    
+
     # If it exists delete it, if not delete is unsuccessful
     if recommendation is None:
-        abort(status.HTTP_404_NOT_FOUND, "Recommendation {recomendation_id} does not exist")
-    
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            "Recommendation {recomendation_id} does not exist",
+        )
+
     recommendation.delete()
-    
+
     # Delete always returns 204
     return "", status.HTTP_204_NO_CONTENT

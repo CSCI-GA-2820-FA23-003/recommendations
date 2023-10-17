@@ -10,6 +10,7 @@ class RecommendationFactory(factory.Factory):
         model = Recommendation
 
     id = factory.Sequence(lambda n: n)
+    source_pid = factory.Sequence(lambda n: n)
     name = factory.Faker("name")
     recommendation_id = factory.Sequence(lambda n: n)
     recommendation_name = factory.Faker("name")
