@@ -39,7 +39,8 @@ class Recommendation(db.Model):
     app = None
 
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  # this is a recommendation ID
+    source_pid = db.Column(db.db.Integer)  # this is a product ID
     name = db.Column(db.String(63))
     recommendation_id = db.Column(db.Integer)
     recommendation_name = db.Column(db.String(63))
@@ -80,6 +81,7 @@ class Recommendation(db.Model):
         """Serializes a Recommendation into a dictionary"""
         return {
             "id": self.id,
+            "source_pid": self.source_pid,
             "name": self.name,
             "recommendation_id": self.recommendation_id,
             "recommendation_name": self.recommendation_name,
@@ -98,6 +100,7 @@ class Recommendation(db.Model):
         try:
             self.name = data["name"]
             self.id = data["id"]
+            self.source_pid = data["source_pid"]
             self.recommendation_id = data["recommendation_id"]
             self.recommendation_name = data["recommendation_name"]
             self.number_of_likes = data["number_of_likes"]
@@ -108,11 +111,6 @@ class Recommendation(db.Model):
             else:
                 self.type = RecommendationType[data["type"]]
 
-            if not isinstance(self.type, RecommendationType):
-                raise DataValidationError(
-                    "invalid type for Recommendation Type:" + str(type(self.type))
-                )
-
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Recommendation: missing " + error.args[0]
@@ -122,10 +120,6 @@ class Recommendation(db.Model):
                 "Invalid Recommendation: body of request contained bad or no data - "
                 "Error message: " + error.args[0]
             ) from error
-        except ValueError as error:
-            raise DataValidationError("Invalid value: " + error.args[0]) from error
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute " + error.args[0]) from error
         return self
 
     @classmethod

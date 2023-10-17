@@ -8,26 +8,6 @@ import unittest
 from service.models import DataValidationError, db, Recommendation, RecommendationType
 from tests.factories import RecommendationFactory
 
-# def make_recommendation(
-#     id,
-#     name,
-#     recommendation_id,
-#     recommendation_name,
-#     type,
-#     number_of_likes,
-#     number_of_dislikes,
-# ):
-#     "Generate a Recommendation by the given arguments"
-#     rec = Recommendation()
-#     rec.id = id
-#     rec.name = name
-#     rec.recommendation_id = recommendation_id
-#     rec.recommendation_name = recommendation_name
-#     rec.type = type
-#     rec.number_of_likes = number_of_likes
-#     rec.number_of_dislikes = number_of_dislikes
-#     return rec
-
 
 ######################################################################
 #  YourResourceModel   M O D E L   T E S T   C A S E S
@@ -60,6 +40,7 @@ class TestYourResourceModel(unittest.TestCase):
         data = fake_rec.serialize()
         self.assertNotEqual(data, None)
         self.assertEqual(data["id"], fake_rec.id)
+        self.assertEqual(data["source_pid"], fake_rec.source_pid)
         self.assertEqual(data["name"], fake_rec.name)
         self.assertEqual(data["recommendation_id"], fake_rec.recommendation_id)
         self.assertEqual(data["recommendation_name"], fake_rec.recommendation_name)
@@ -74,6 +55,7 @@ class TestYourResourceModel(unittest.TestCase):
         recommendation = Recommendation().deserialize(data)  #####
         self.assertNotEqual(recommendation, None)
         self.assertEqual(recommendation.id, data["id"])
+        self.assertEqual(recommendation.source_pid, data["source_pid"])
         self.assertEqual(recommendation.name, data["name"])
         self.assertEqual(recommendation.recommendation_id, data["recommendation_id"])
         self.assertEqual(
