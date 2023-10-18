@@ -14,6 +14,9 @@ from service.models import db, RecommendationType, Recommendation
 from service.common import status  # HTTP Status Codes
 from tests.factories import RecommendationFactory
 
+logging.basicConfig(level=logging.DEBUG)
+BASE_URL = "/recommendation"
+
 
 ######################################################################
 #  T E S T   C A S E S
@@ -36,6 +39,27 @@ class TestYourResourceServer(TestCase):
 
     def tearDown(self):
         """This runs after each test"""
+
+    def _create_recommendations(self, n_count, *args):
+        """Factory method to create n recommendations"""
+
+        recommendations = []
+        for i in range(n_count):
+            test_recommendation = RecommendationFactory()
+            if type(args[0]) == list and i < len(args[0]):
+                test_recommendation.source_pid = args[0][i][0]
+                test_recommendation.recommendation_id = args[0][i][1]
+            response = self.client.post(BASE_URL, json=test_recommendation.serialize())
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test recommendation",
+            )
+            new_recommendation = response.get_json()
+            test_recommendation.id = new_recommendation["id"]
+            recommendations.append(test_recommendation)
+        logging.debug("Test Recommendation: %s", len(recommendations))
+        return recommendations
 
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
@@ -156,3 +180,27 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         update_recommendation = response.get_json()
         self.assertEqual(update_recommendation["name"], "ABC")
+
+    def test_list_recommendations(self):
+        """It should Get a list of recommendations filtered by source_pid"""
+
+        """Use '._create_recommendations' to add dump data 
+        and assign their source_pid, commendation_pid"""
+        # recommendations = self._create_recommendations(
+        #     5, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
+        # )
+        response = self.client.get(f"{BASE_URL}/list/{0}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        for recommendation in data:
+            self.assertEqual(recommendation["source_pid"], 0)
+        response = self.client.get(f"{BASE_URL}/list/12387128317293789")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+    def test_bad_request(self):
+        """It should return a bad request"""
+        target = {}
+        resp = self.client.get(BASE_URL, json = target)
+        self.assertEqual = (resp.status_code, status.HTTP_400_BAD_REQUEST)
+        
+    
