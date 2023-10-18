@@ -4,7 +4,7 @@ My Service
 Describe what your service does here
 """
 
-from flask import jsonify, request, url_for, abort
+from flask import jsonify, request, url_for, abort, make_response
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation, RecommendationType
 from flask_sqlalchemy import SQLAlchemy
@@ -81,3 +81,14 @@ def put(id):
     recommendation.update()
 
     return recommendation.serialize(), status.HTTP_200_OK
+
+
+@app.route("/recommendation/list/<int:source_pid>", methods=["GET"])
+def list(source_pid):
+    """This will list all recommendations related to given source_pid."""
+    app.logger.info("Request for Account list")
+    recommendation = Recommendation.find_by_source_pid(source_pid)
+    if not recommendation:
+        abort(status.HTTP_404_NOT_FOUND, f"Related recommendation not found")
+    # make_response([], status.HTTP_200_OK)
+    return make_response([r.serialize() for r in recommendation], status.HTTP_200_OK)
