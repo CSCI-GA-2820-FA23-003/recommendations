@@ -86,15 +86,12 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertRaises(DataValidationError, recommendation.deserialize, data)
 
     def test_find(self):
-        """It should find a recommendation by id"""
+        """It should find a recommendation by its id"""
         target = RecommendationFactory()
         target.create()
-
-        self.assertEqual(
-            Recommendation.find(target.id),
-            target.id,
-            "find result unmatch",
-        )
+        fetched_target = Recommendation.find(target.id)
+        self.assertIsNot(fetched_target, None)
+        self.assertEqual(fetched_target.id, target.id)
 
     def test_update(self):
         target = RecommendationFactory()
