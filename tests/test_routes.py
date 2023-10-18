@@ -202,3 +202,30 @@ class TestYourResourceServer(TestCase):
         target = {}
         resp = self.client.get(BASE_URL, json=target)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_nonexistent_recommendation(self):
+        # Choose an ID that is very unlikely to exist in your database
+        nonexistent_id = 9999999
+
+        # Send a DELETE request to the /recommendation/{id} route with the non-existent ID
+        response = self.client.delete(f"{BASE_URL}/{nonexistent_id}")
+
+        # Check that the response status code is 404
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_put_nonexistent_recommendation(self):
+        """It should return 404 when trying to update a non-existent recommendation"""
+        # Choose an ID that is very unlikely to exist in your database
+        nonexistent_id = 9999999
+
+        # Define a sample JSON data for the update request
+        update_data = {
+            "field1": "new_value1",
+            "field2": "new_value2",
+            # Add other fields as needed
+        }
+
+        # Send a PUT request to the /recommendation/{id} route with the non-existent ID and update data
+        response = self.client.put(f"{BASE_URL}/{nonexistent_id}", json=update_data)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
