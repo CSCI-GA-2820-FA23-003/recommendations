@@ -153,3 +153,12 @@ class Recommendation(db.Model):
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
+
+    @classmethod
+    def find_by_source_pid(cls, source_pid):
+        """Returns all YourResourceModels with the given source_pid
+        Args:
+            source_pid (string): the source_pid of the YourResourceModels you want to match
+        """
+        logger.info(f"Processing find by source_pid query. source_pid={source_pid}")
+        return cls.query.filter(cls.source_pid == source_pid).all()
