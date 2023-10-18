@@ -203,4 +203,3 @@ class TestYourResourceServer(TestCase):
         resp = self.client.get(BASE_URL, json = target)
         self.assertEqual = (resp.status_code, status.HTTP_400_BAD_REQUEST)
         
-    
