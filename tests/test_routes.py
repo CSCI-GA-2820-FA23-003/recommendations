@@ -147,7 +147,7 @@ class TestYourResourceServer(TestCase):
         target = RecommendationFactory()
         target.create()
 
-        self.assertEqual = (
+        self.assertEqual(
             Recommendation.find(target.id),
             target.id,
             "find result unmatch",
