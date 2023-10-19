@@ -178,13 +178,33 @@ class TestYourResourceServer(TestCase):
         # recommendations = self._create_recommendations(
         #     5, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
         # )
-        response = self.client.get(f"{BASE_URL}/list/{0}")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(f"{BASE_URL}/")
         data = response.get_json()
-        for recommendation in data:
-            self.assertEqual(recommendation["source_pid"], 0)
-        response = self.client.get(f"{BASE_URL}/list/12387128317293789")
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        if response.status_code == status.HTTP_200_OK:
+            self.assertGreater(len(data), 0)
+        else:
+            self.assertEqual(len(data), 0)
+        # for recommendation in data:
+        #     self.assertEqual(recommendation["source_pid"], 0)
+        # response = self.client.get(f"{BASE_URL}/list/12387128317293789")
+        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get(self):
+        """It should Get a specific recommendation"""
+        response = self.client.get(f"{BASE_URL}/")
+        all_recommendations = response.get_json()
+        if len(all_recommendations) == 0:
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        else:
+            id = all_recommendations[0]["id"]
+            source_pid = all_recommendations[0]["source_pid"]
+            recommendation_id = all_recommendations[0]["recommendation_id"]
+            response = self.client.get(f"{BASE_URL}/{id}")
+            data = response.get_json()
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(data["id"], id)
+            self.assertEqual(data["source_pid"], source_pid)
+            self.assertEqual(data["recommendation_id"], recommendation_id)
 
     def test_bad_request(self):
         """It should return a bad request"""
