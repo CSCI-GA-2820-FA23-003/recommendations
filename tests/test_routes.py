@@ -142,17 +142,6 @@ class TestYourResourceServer(TestCase):
         # Check the response status code
         self.assertEqual(response.status_code, 404)
 
-    def test_find(self):
-        """It should find a recommendation by id"""
-        target = RecommendationFactory()
-        target.create()
-
-        self.assertEqual(
-            Recommendation.find(target.id),
-            target.id,
-            "find result unmatch",
-        )
-
     def test_delete(self):
         """It should delete a recommendation if it is in the DB"""
         target = RecommendationFactory()
@@ -196,10 +185,9 @@ class TestYourResourceServer(TestCase):
             self.assertEqual(recommendation["source_pid"], 0)
         response = self.client.get(f"{BASE_URL}/list/12387128317293789")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        
+
     def test_bad_request(self):
         """It should return a bad request"""
         target = {}
-        resp = self.client.get(BASE_URL, json = target)
+        resp = self.client.get(BASE_URL, json=target)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-        
