@@ -142,6 +142,11 @@ class TestYourResourceServer(TestCase):
         # Check the response status code
         self.assertEqual(response.status_code, 404)
 
+    def test_create_rec_no_content_type(self):
+        """It should not Create a rec with no content"""
+        response = self.client.post(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
     def test_delete(self):
         """It should delete a recommendation if it is in the DB"""
         target = RecommendationFactory()
@@ -206,8 +211,30 @@ class TestYourResourceServer(TestCase):
             self.assertEqual(data["source_pid"], source_pid)
             self.assertEqual(data["recommendation_id"], recommendation_id)
 
+    ######################################################################
+    #  P L A C E   T E S T   C A S E S   H E R E
+    ######################################################################
+
     def test_bad_request(self):
-        """It should return a bad request"""
-        target = {}
-        resp = self.client.get(BASE_URL, json=target)
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        """It should not create a recommendation with missing data"""
+        response = self.client.post(BASE_URL, json={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_method_not_allowed_handler(self):
+        """It should trigger Method Not Allowed error handler"""
+        resp = self.client.delete(f"{BASE_URL}")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    # def test_rec_already_exists(self):
+    #     """It should detect a recommendation that already exists"""
+    #     fake_rec = RecommendationFactory()
+    #     data = fake_rec.serialize()
+
+    #     # Send a POST request to the /recommendation route with the sample data
+    #     resp = self.client.post(
+    #         "/recommendation", data=json.dumps(data), content_type="application/json"
+    #     )
+    #     resp = self.client.post(
+    #         "/recommendation", data=json.dumps(data), content_type="application/json"
+    #     )
+    #     self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)

@@ -36,7 +36,8 @@ def index():
 
 @app.route("/recommendation", methods=["POST"])
 def post():
-    """Root URL response"""
+    """This creates a new recommendation and stores it in the database"""
+
     data = request.json
 
     recommendation = Recommendation()
