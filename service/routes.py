@@ -36,7 +36,8 @@ def index():
 
 @app.route("/recommendation", methods=["POST"])
 def post():
-    """Root URL response"""
+    """This creates a new recommendation and stores it in the database"""
+
     data = request.json
 
     recommendation = Recommendation()
@@ -83,12 +84,23 @@ def put(id):
     return recommendation.serialize(), status.HTTP_200_OK
 
 
-@app.route("/recommendation/list/<int:source_pid>", methods=["GET"])
-def list(source_pid):
+@app.route("/recommendation/<int:id>", methods=["GET"])
+def get(id):
+    """This will list all recommendations related to given source_pid."""
+    app.logger.info(f"Request for recommendation[id={id}]")
+    recommendation = Recommendation.find(id)
+    if not recommendation:
+        abort(status.HTTP_404_NOT_FOUND, f"Recommendation {id} not found")
+    # make_response([], status.HTTP_200_OK)
+    return make_response(recommendation.serialize(), status.HTTP_200_OK)
+
+
+@app.route("/recommendation/", methods=["GET"])
+def list_all():
     """This will list all recommendations related to given source_pid."""
     app.logger.info("Request for Account list")
-    recommendation = Recommendation.find_by_source_pid(source_pid)
+    recommendation = Recommendation.all()
     if not recommendation:
-        abort(status.HTTP_404_NOT_FOUND, f"Related recommendation not found")
+        abort(status.HTTP_404_NOT_FOUND, f"None recommendation is found")
     # make_response([], status.HTTP_200_OK)
     return make_response([r.serialize() for r in recommendation], status.HTTP_200_OK)

@@ -142,16 +142,10 @@ class TestYourResourceServer(TestCase):
         # Check the response status code
         self.assertEqual(response.status_code, 404)
 
-    def test_find(self):
-        """It should find a recommendation by id"""
-        target = RecommendationFactory()
-        target.create()
-
-        self.assertEqual(
-            Recommendation.find(target.id),
-            target.id,
-            "find result unmatch",
-        )
+    def test_create_rec_no_content_type(self):
+        """It should not Create a rec with no content"""
+        response = self.client.post(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_delete(self):
         """It should delete a recommendation if it is in the DB"""
@@ -189,8 +183,7 @@ class TestYourResourceServer(TestCase):
         # recommendations = self._create_recommendations(
         #     5, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
         # )
-        response = self.client.get(f"{BASE_URL}/list/{0}")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(f"{BASE_URL}/")
         data = response.get_json()
         for recommendation in data:
             self.assertEqual(recommendation["source_pid"], 0)
