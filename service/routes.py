@@ -4,15 +4,15 @@ My Service
 Describe what your service does here
 """
 
-from flask import jsonify, request, url_for, abort, make_response
+# Import Flask application
+from . import app
+
+from flask import request, abort, make_response
 from service.common import status  # HTTP Status Codes
-from service.models import Recommendation, RecommendationType
+from service.models import Recommendation
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-
-# Import Flask application
-from . import app
 
 
 ######################################################################
@@ -101,6 +101,6 @@ def list_all():
     app.logger.info("Request for Account list")
     recommendation = Recommendation.all()
     if not recommendation:
-        abort(status.HTTP_404_NOT_FOUND, f"None recommendation is found")
+        abort(status.HTTP_404_NOT_FOUND, "None recommendation is found")
     # make_response([], status.HTTP_200_OK)
     return make_response([r.serialize() for r in recommendation], status.HTTP_200_OK)
