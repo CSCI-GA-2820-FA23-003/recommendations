@@ -5,12 +5,11 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
 import logging
 import json
 from unittest import TestCase
 from service import app
-from service.models import db, RecommendationType, Recommendation
+from service.models import RecommendationType
 from service.common import status  # HTTP Status Codes
 from tests.factories import RecommendationFactory
 
@@ -178,8 +177,7 @@ class TestYourResourceServer(TestCase):
     def test_list_recommendations(self):
         """It should Get a list of recommendations filtered by source_pid"""
 
-        """Use '._create_recommendations' to add dump data 
-        and assign their source_pid, commendation_pid"""
+        """Use '._create_recommendations' to add dump data and assign their source_pid, commendation_pid"""
         # recommendations = self._create_recommendations(
         #     5, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
         # )
