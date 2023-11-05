@@ -7,7 +7,7 @@ Describe what your service does here
 # Import Flask application
 from . import app
 
-from flask import request, abort, make_response
+from flask import request, abort, make_response, url_for
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation
 from flask_sqlalchemy import SQLAlchemy
@@ -44,7 +44,9 @@ def post():
     recommendation.deserialize(data)
     recommendation.create()
 
-    return recommendation.serialize(), status.HTTP_201_CREATED
+    location_url = url_for("get",id =recommendation.id, _external = True)
+
+    return recommendation.serialize(), status.HTTP_201_CREATED, {"Location": location_url}
 
 
 @app.route("/recommendation/<int:id>", methods=["DELETE"])
@@ -86,21 +88,17 @@ def put(id):
 
 @app.route("/recommendation/<int:id>", methods=["GET"])
 def get(id):
-    """This will list all recommendations related to given source_pid."""
-    app.logger.info(f"Request for recommendation[id={id}]")
+    """This will list a single recommendation based on its id."""
+    app.logger.info(f"Request for recommendation[id={id}]...")
     recommendation = Recommendation.find(id)
-    if not recommendation:
-        abort(status.HTTP_404_NOT_FOUND, f"Recommendation {id} not found")
-    # make_response([], status.HTTP_200_OK)
-    return make_response(recommendation.serialize(), status.HTTP_200_OK)
+    return [recommendation.serialize()]
 
 
 @app.route("/recommendation/", methods=["GET"])
 def list_all():
-    """This will list all recommendations related to given source_pid."""
-    app.logger.info("Request for Account list")
+    """This will list all recommendations in the database. 
+    Returns: a list of recommendations
+    """
+    app.logger.info("Request to list all recommendations...")
     recommendation = Recommendation.all()
-    if not recommendation:
-        abort(status.HTTP_404_NOT_FOUND, "None recommendation is found")
-    # make_response([], status.HTTP_200_OK)
-    return make_response([r.serialize() for r in recommendation], status.HTTP_200_OK)
+    return [r.serialize() for r in recommendation]
