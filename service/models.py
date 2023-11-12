@@ -1,11 +1,11 @@
 """
-Models for YourResourceModel
+Models for Recommendation
 
 All of the models are stored in this module
 """
 import logging
-from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
+from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
 
@@ -33,7 +33,7 @@ class RecommendationType(Enum):
 
 class Recommendation(db.Model):
     """
-    Class that represents a YourResourceModel
+    Class that represents a Recommendation
     """
 
     app = None
@@ -41,19 +41,18 @@ class Recommendation(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)  # this is a recommendation ID
     source_pid = db.Column(db.db.Integer)  # this is a product ID
-    name = db.Column(db.String(63))
-    recommendation_id = db.Column(db.Integer)
+    name = db.Column(db.String(63))  # this is a product name
     recommendation_name = db.Column(db.String(63))
     type = db.Column(
         db.Enum(RecommendationType),
         nullable=False,
-        default=RecommendationType.CROSSSELL,
+        server_default=(RecommendationType.CROSSSELL.name),
     )
     number_of_likes = db.Column(db.Integer, default=0)
     number_of_dislikes = db.Column(db.Integer, default=0)
 
     def __repr__(self):
-        return f"<YourResourceModel {self.name} id=[{self.id}]>"
+        return f"<Recommendation {self.name} id=[{self.id}]>"
 
     def create(self):
         """
@@ -66,14 +65,14 @@ class Recommendation(db.Model):
 
     def update(self):
         """
-        Updates a YourResourceModel to the database
+        Updates a Recommendation to the database
         """
-        logger.info("Saving %s", self.name)
+        logger.info("Saving %s", self.id)
         db.session.commit()
 
     def delete(self):
-        """Removes a YourResourceModel from the data store"""
-        logger.info("Deleting %s", self.name)
+        """Removes a Recommendation from the data store"""
+        logger.info("Deleting %s", self.id)
         db.session.delete(self)
         db.session.commit()
 
@@ -83,7 +82,6 @@ class Recommendation(db.Model):
             "id": self.id,
             "source_pid": self.source_pid,
             "name": self.name,
-            "recommendation_id": self.recommendation_id,
             "recommendation_name": self.recommendation_name,
             "type": self.type.name,
             "number_of_likes": self.number_of_likes,
@@ -101,7 +99,6 @@ class Recommendation(db.Model):
             self.name = data["name"]
             self.id = data["id"]
             self.source_pid = data["source_pid"]
-            self.recommendation_id = data["recommendation_id"]
             self.recommendation_name = data["recommendation_name"]
             self.number_of_likes = data["number_of_likes"]
             self.number_of_dislikes = data["number_of_dislikes"]
@@ -134,31 +131,55 @@ class Recommendation(db.Model):
 
     @classmethod
     def all(cls):
-        """Returns all of the YourResourceModels in the database"""
-        logger.info("Processing all YourResourceModels")
+        """Returns all of the Recommendations in the database"""
+        logger.info("Processing all Recommendations")
         return cls.query.all()
 
     @classmethod
-    def find(cls, by_id):
-        """Finds a YourResourceModel by it's ID"""
-        logger.info("Processing lookup for id %s ...", by_id)
-        return cls.query.get(by_id)
+    def find(cls, id):
+        """Finds a Recommendation by it's ID"""
+        logger.info("Processing lookup for id %d ...", id)
+        return cls.query.get(id)
 
     @classmethod
-    def find_by_name(cls, name):
-        """Returns all YourResourceModels with the given name
+    def find_by_name(cls, name) -> list:
+        """Returns all Recommendations with the name of an associated product
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the Recommendations you want to match
         """
-        logger.info("Processing name query for %s ...", name)
+        logger.info("Processing lookup for name %s...", name)
         return cls.query.filter(cls.name == name)
 
     @classmethod
-    def find_by_source_pid(cls, source_pid):
-        """Returns all YourResourceModels with the given source_pid
+    def find_by_rec_name(cls, recommendation_name) -> list:
+        """Returns all Recommendations with its name
+
         Args:
-            source_pid (string): the source_pid of the YourResourceModels you want to match
+            name (string): the name of the Recommendations you want to match
         """
-        logger.info(f"Processing find by source_pid query. source_pid={source_pid}")
-        return cls.query.filter(cls.source_pid == source_pid).all()
+        logger.info("Processing lookup for name %s...", recommendation_name)
+        return cls.query.filter(cls.name == recommendation_name)
+
+    @classmethod
+    def find_by_source_pid(cls, source_pid) -> list:
+        """Returns all Recommendations with the given source_pid
+        Args:
+            source_pid (integer): the source_pid of the Recommendations you want to match
+        """
+        logger.info("Processing lookup for source_pid %d...", source_pid)
+        return cls.query.filter(cls.source_pid == source_pid)
+
+    @classmethod
+    def find_by_type(cls, type: RecommendationType = RecommendationType.UPSELL) -> list:
+        """Returns all Recommendations by their type
+
+        :param gender: values are ['CROSSSELL', 'UPSELL', 'ACCESSORY']
+        :type available: enum
+
+        :return: a collection of Recommendations of that type
+        :rtype: list
+
+        """
+        logger.info("Processing lookup for type %s...", type.name)
+        return cls.query.filter(cls.source_pid == type)
