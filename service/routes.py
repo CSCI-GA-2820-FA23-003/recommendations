@@ -131,13 +131,7 @@ def delete(id):
     recommendation = Recommendation.find(id)
 
     # If it exists delete it, if not delete is unsuccessful
-    if recommendation is None:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Recommendation with id '{id}' does not exist",
-        )
-    if recommendation:
-        recommendation.delete()
+    recommendation.delete()
 
     # Delete always returns 204
     return "", status.HTTP_204_NO_CONTENT
