@@ -5,16 +5,21 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
+import os
 import logging
 import json
 from unittest import TestCase
 from service import app
-from service.models import RecommendationType
+from service.models import Recommendation, RecommendationType, db, init_db
 from service.common import status  # HTTP Status Codes
 from tests.factories import RecommendationFactory
 
 logging.basicConfig(level=logging.DEBUG)
-BASE_URL = "/recommendation"
+
+DATABASE_URI = os.getenv(
+    "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
+)
+BASE_URL = "/recommendations"
 
 
 ######################################################################
@@ -27,27 +32,39 @@ class TestYourResourceServer(TestCase):
     @classmethod
     def setUpClass(cls):
         """This runs once before the entire test suite"""
+        app.config["TESTING"] = True
+        app.config["DEBUG"] = False
+        # Set up the test database
+        app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+        app.logger.setLevel(logging.CRITICAL)
+        init_db(app)
 
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
+        db.session.close()
 
     def setUp(self):
         """This runs before each test"""
         self.client = app.test_client()
+        db.session.query(Recommendation).delete()  # clean up the last tests
+        db.session.commit()
 
     def tearDown(self):
         """This runs after each test"""
 
-    def _create_recommendations(self, n_count, *args):
+    ############################################################
+    # Utility function to bulk create recommendations
+    ############################################################
+    def _create_recommendations(self, count: int = 1) -> list:
         """Factory method to create n recommendations"""
 
         recommendations = []
-        for i in range(n_count):
+        for _ in range(count):
             test_recommendation = RecommendationFactory()
-            if type(args[0]) == list and i < len(args[0]):
-                test_recommendation.source_pid = args[0][i][0]
-                test_recommendation.recommendation_id = args[0][i][1]
+            # if type(args[0]) == list and i < len(args[0]):
+            #     test_recommendation.source_pid = args[0][i][0]
+            #     test_recommendation.id = args[0][i][1]
             response = self.client.post(BASE_URL, json=test_recommendation.serialize())
             self.assertEqual(
                 response.status_code,
@@ -57,17 +74,63 @@ class TestYourResourceServer(TestCase):
             new_recommendation = response.get_json()
             test_recommendation.id = new_recommendation["id"]
             recommendations.append(test_recommendation)
-        logging.debug("Test Recommendation: %s", len(recommendations))
         return recommendations
 
     ######################################################################
-    #  P L A C E   T E S T   C A S E S   H E R E
+    #  T E S T   C A S E S
     ######################################################################
-
     def test_index(self):
         """It should call the home page"""
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_health(self):
+        """It should be healthy"""
+        response = self.client.get("/health")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["message"], "OK")
+
+    # ----------------------------------------------------------
+    # TEST LIST
+    # ----------------------------------------------------------
+    def test_list_all(self):
+        """It should Get a list of recommendations"""
+        self._create_recommendations(5)
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), 5)
+
+    # ----------------------------------------------------------
+    # TEST READ
+    # ----------------------------------------------------------
+    def test_get(self):
+        """It should Get a specific recommendation"""
+        # get the id of a recommendation
+        test_recommendation = self._create_recommendations(1)[0]
+        response = self.client.get(f"{BASE_URL}/{test_recommendation.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(
+            data["recommendation_name"], test_recommendation.recommendation_name
+        )
+
+        # all_recommendations = response.get_json()
+        # if len(all_recommendations) == 0:
+        #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # else:
+        #     id = all_recommendations[0]["id"]
+        #     source_pid = all_recommendations[0]["source_pid"]
+        #     response = self.client.get(f"{BASE_URL}/{id}")
+        #     data = response.get_json()
+        #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #     self.assertEqual(data["id"], id)
+        #     self.assertEqual(data["source_pid"], source_pid)
+
+    # ----------------------------------------------------------
+    # TEST CREATE
+    # ----------------------------------------------------------
 
     def test_post_recommendation(self):
         """It should post a sample recommendation"""
@@ -77,7 +140,7 @@ class TestYourResourceServer(TestCase):
 
         # Send a POST request to the /recommendation route with the sample data
         response = self.client.post(
-            "/recommendation", data=json.dumps(data), content_type="application/json"
+            BASE_URL, data=json.dumps(data), content_type="application/json"
         )
 
         # Check the response status code
@@ -105,7 +168,7 @@ class TestYourResourceServer(TestCase):
 
         # Send a POST request to the /recommendation route with the sample data
         response = self.client.post(
-            "/recommendation", data=json.dumps(data), content_type="application/json"
+            BASE_URL, data=json.dumps(data), content_type="application/json"
         )
 
         # Check the response status code
@@ -135,7 +198,9 @@ class TestYourResourceServer(TestCase):
 
         # Send a POST request to the /recommendation route with the sample data
         response = self.client.post(
-            "/recommendations", data=json.dumps(data), content_type="application/json"
+            "/recommendations_bad",
+            data=json.dumps(data),
+            content_type="application/json",
         )
 
         # Check the response status code
@@ -150,64 +215,27 @@ class TestYourResourceServer(TestCase):
         """It should delete a recommendation if it is in the DB"""
         target = RecommendationFactory()
         target.create()
-        resp = self.client.post("/recommendation", json=target.serialize())
+        resp = self.client.post(BASE_URL, json=target.serialize())
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         recommendation = resp.get_json()
 
-        resp = self.client.delete(f"/recommendation/{recommendation['id']}")
+        resp = self.client.delete(f"{BASE_URL}/{recommendation['id']}")
 
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_recommendation(self):
         """It should update a recommendation"""
         target = RecommendationFactory()
-        resp = self.client.post("/recommendation", json=target.serialize())
+        resp = self.client.post(BASE_URL, json=target.serialize())
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
         new_target = resp.get_json()
         new_target["name"] = "ABC"
-        response = self.client.put(
-            f"/recommendation/{new_target['id']}", json=new_target
-        )
+        response = self.client.put(f"{BASE_URL}/{new_target['id']}", json=new_target)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         update_recommendation = response.get_json()
         self.assertEqual(update_recommendation["name"], "ABC")
-
-    def test_list_recommendations(self):
-        """It should Get a list of recommendations filtered by source_pid"""
-
-        """Use '._create_recommendations' to add dump data and assign their source_pid, commendation_pid"""
-        # recommendations = self._create_recommendations(
-        #     5, [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3]]
-        # )
-        response = self.client.get(f"{BASE_URL}/")
-        data = response.get_json()
-        if response.status_code == status.HTTP_200_OK:
-            self.assertGreater(len(data), 0)
-        else:
-            self.assertEqual(len(data), 0)
-        # for recommendation in data:
-        #     self.assertEqual(recommendation["source_pid"], 0)
-        # response = self.client.get(f"{BASE_URL}/list/12387128317293789")
-        # self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_get(self):
-        """It should Get a specific recommendation"""
-        response = self.client.get(f"{BASE_URL}/")
-        all_recommendations = response.get_json()
-        if len(all_recommendations) == 0:
-            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        else:
-            id = all_recommendations[0]["id"]
-            source_pid = all_recommendations[0]["source_pid"]
-            recommendation_id = all_recommendations[0]["recommendation_id"]
-            response = self.client.get(f"{BASE_URL}/{id}")
-            data = response.get_json()
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(data["id"], id)
-            self.assertEqual(data["source_pid"], source_pid)
-            self.assertEqual(data["recommendation_id"], recommendation_id)
 
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
