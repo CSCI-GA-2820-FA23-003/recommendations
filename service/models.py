@@ -52,13 +52,13 @@ class Recommendation(db.Model):
     number_of_dislikes = db.Column(db.Integer, default=0)
 
     def __repr__(self):
-        return f"<Recommendation {self.name} id=[{self.id}]>"
+        return f"<Recommendation {self.recommendation_name} id=[{self.id}]>"
 
     def create(self):
         """
         Creates a Recommendation to the database
         """
-        logger.info("Creating %s", self.id)
+        logger.info("Creating %s", self.recommendation_name)
         self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
         db.session.commit()
@@ -67,12 +67,12 @@ class Recommendation(db.Model):
         """
         Updates a Recommendation to the database
         """
-        logger.info("Saving %s", self.id)
+        logger.info("Saving %s", self.recommendation_name)
         db.session.commit()
 
     def delete(self):
         """Removes a Recommendation from the data store"""
-        logger.info("Deleting %s", self.id)
+        logger.info("Deleting %s", self.recommendation_name)
         db.session.delete(self)
         db.session.commit()
 
@@ -159,7 +159,7 @@ class Recommendation(db.Model):
             name (string): the name of the Recommendations you want to match
         """
         logger.info("Processing lookup for name %s...", recommendation_name)
-        return cls.query.filter(cls.name == recommendation_name)
+        return cls.query.filter(cls.recommendation_name == recommendation_name)
 
     @classmethod
     def find_by_source_pid(cls, source_pid) -> list:
@@ -171,7 +171,9 @@ class Recommendation(db.Model):
         return cls.query.filter(cls.source_pid == source_pid)
 
     @classmethod
-    def find_by_type(cls, type: RecommendationType = RecommendationType.UPSELL) -> list:
+    def find_by_type(
+        cls, type: RecommendationType = RecommendationType.CROSSSELL
+    ) -> list:
         """Returns all Recommendations by their type
 
         :param gender: values are ['CROSSSELL', 'UPSELL', 'ACCESSORY']
@@ -182,4 +184,4 @@ class Recommendation(db.Model):
 
         """
         logger.info("Processing lookup for type %s...", type.name)
-        return cls.query.filter(cls.source_pid == type)
+        return cls.query.filter(cls.type == type)

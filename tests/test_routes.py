@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 import json
+from urllib.parse import quote_plus
 from unittest import TestCase
 from service import app
 from service.models import Recommendation, RecommendationType, db, init_db
@@ -211,6 +212,10 @@ class TestYourResourceServer(TestCase):
         response = self.client.post(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
+    # ----------------------------------------------------------
+    # TEST DELETE
+    # ----------------------------------------------------------
+
     def test_delete(self):
         """It should delete a recommendation if it is in the DB"""
         target = RecommendationFactory()
@@ -223,6 +228,10 @@ class TestYourResourceServer(TestCase):
         resp = self.client.delete(f"{BASE_URL}/{recommendation['id']}")
 
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+    # ----------------------------------------------------------
+    # TEST UPDATE
+    # ----------------------------------------------------------
 
     def test_update_recommendation(self):
         """It should update a recommendation"""
@@ -237,10 +246,6 @@ class TestYourResourceServer(TestCase):
         update_recommendation = response.get_json()
         self.assertEqual(update_recommendation["name"], "ABC")
 
-    ######################################################################
-    #  P L A C E   T E S T   C A S E S   H E R E
-    ######################################################################
-
     def test_bad_request(self):
         """It should not create a recommendation with missing data"""
         response = self.client.post(BASE_URL, json={})
@@ -251,16 +256,85 @@ class TestYourResourceServer(TestCase):
         resp = self.client.delete(f"{BASE_URL}")
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    # def test_rec_already_exists(self):
-    #     """It should detect a recommendation that already exists"""
-    #     fake_rec = RecommendationFactory()
-    #     data = fake_rec.serialize()
+    # ----------------------------------------------------------
+    # TEST QUERY
+    # ----------------------------------------------------------
+    def test_query_by_product_name(self):
+        """It should Query Recommendations by a source product name"""
+        recommendations = self._create_recommendations(5)
+        test_name = recommendations[0].name
+        name_count = len([rec for rec in recommendations if rec.name == test_name])
+        response = self.client.get(
+            BASE_URL, query_string=f"name={quote_plus(test_name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["name"], test_name)
 
-    #     # Send a POST request to the /recommendation route with the sample data
-    #     resp = self.client.post(
-    #         "/recommendation", data=json.dumps(data), content_type="application/json"
-    #     )
-    #     resp = self.client.post(
-    #         "/recommendation", data=json.dumps(data), content_type="application/json"
-    #     )
-    #     self.assertEqual(resp.status_code, status.HTTP_409_CONFLICT)
+    def test_query_by_recommendation_name(self):
+        """It should Query Recommendations by its name"""
+        recommendations = self._create_recommendations(5)
+        test_name = recommendations[0].recommendation_name
+        name_count = len(
+            [rec for rec in recommendations if rec.recommendation_name == test_name]
+        )
+        response = self.client.get(
+            BASE_URL, query_string=f"recommendation_name={quote_plus(test_name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["recommendation_name"], test_name)
+
+    def test_query_by_type(self):
+        """It should Query Recommendations by its type"""
+        recommendations = self._create_recommendations(10)
+        test_type = recommendations[0].type
+        type_recs = [rec for rec in recommendations if rec.type == test_type]
+        type_count = len(type_recs)
+        logging.debug("Recommendation Type [%d] %s", type_count, type_recs)
+
+        # test for available
+        response = self.client.get(
+            BASE_URL, query_string=f"type={quote_plus(test_type.name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), type_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["type"], test_type.name)
+
+    # ----------------------------------------------------------
+    # TEST LIKE
+    # ----------------------------------------------------------
+    def test_like(self):
+        """It should Like a Recommendation"""
+        recommendations = self._create_recommendations(1)
+        rec = recommendations[0]
+        response = self.client.put(f"{BASE_URL}/{rec.id}/like")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(f"{BASE_URL}/{rec.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("Response data: %s", data)
+        self.assertEqual(data["number_of_likes"], 1)
+
+    def test_dislike(self):
+        """It should Dislike a Recommendation"""
+        recommendations = self._create_recommendations(1)
+        rec = recommendations[0]
+        response = self.client.put(f"{BASE_URL}/{rec.id}/like")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.put(f"{BASE_URL}/{rec.id}/dislike")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(f"{BASE_URL}/{rec.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("Response data: %s", data)
+        self.assertEqual(data["number_of_likes"], 0)
