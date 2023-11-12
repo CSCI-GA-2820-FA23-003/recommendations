@@ -2,10 +2,8 @@
 Test cases for YourResourceModel Model
 
 """
-import os
-import logging
 import unittest
-from service.models import DataValidationError, db, Recommendation, RecommendationType
+from service.models import DataValidationError, Recommendation, RecommendationType
 from tests.factories import RecommendationFactory
 
 
@@ -42,7 +40,6 @@ class TestYourResourceModel(unittest.TestCase):
         self.assertEqual(data["id"], fake_rec.id)
         self.assertEqual(data["source_pid"], fake_rec.source_pid)
         self.assertEqual(data["name"], fake_rec.name)
-        self.assertEqual(data["recommendation_id"], fake_rec.recommendation_id)
         self.assertEqual(data["recommendation_name"], fake_rec.recommendation_name)
         self.assertEqual(data["type"], fake_rec.type.name)
         self.assertEqual(data["number_of_likes"], fake_rec.number_of_likes)
@@ -52,12 +49,11 @@ class TestYourResourceModel(unittest.TestCase):
         """It should de-serialize a recommendation"""
         fake_rec = RecommendationFactory()
         data = fake_rec.serialize()
-        recommendation = Recommendation().deserialize(data)  #####
+        recommendation = Recommendation().deserialize(data)
         self.assertNotEqual(recommendation, None)
         self.assertEqual(recommendation.id, data["id"])
         self.assertEqual(recommendation.source_pid, data["source_pid"])
         self.assertEqual(recommendation.name, data["name"])
-        self.assertEqual(recommendation.recommendation_id, data["recommendation_id"])
         self.assertEqual(
             recommendation.recommendation_name, data["recommendation_name"]
         )
@@ -69,7 +65,7 @@ class TestYourResourceModel(unittest.TestCase):
         """It should not deserialize a recommendation with missing data"""
         data = {"id": 0, "name": "cookie"}
         recommendation = Recommendation()
-        self.assertRaises(DataValidationError, recommendation.deserialize, data)  ###
+        self.assertRaises(DataValidationError, recommendation.deserialize, data)
 
     def test_deserialize_bad_data(self):
         """It should not deserialize bad data"""

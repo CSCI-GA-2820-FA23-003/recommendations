@@ -4,15 +4,23 @@ My Service
 Describe what your service does here
 """
 
-from flask import jsonify, request, url_for, abort, make_response
+# Import Flask application
+from flask import jsonify, request, abort, url_for, make_response
+from . import app
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation, RecommendationType
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-# Import Flask application
-from . import app
+
+######################################################################
+# GET HEALTH CHECK
+######################################################################
+@app.route("/health")
+def healthcheck():
+    """Let them know our heart is still beating"""
+    return make_response(jsonify(status=200, message="OK"), status.HTTP_200_OK)
 
 
 ######################################################################
@@ -31,10 +39,72 @@ def index():
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
-# Place your REST API code here ...
+
+######################################################################
+# LIST ALL RECOMMENDATIONS
+######################################################################
+@app.route("/recommendations", methods=["GET"])
+def list_all():
+    """This will list all recommendations in the database.
+    Returns: a list of recommendations
+    """
+    app.logger.info("Request to list all recommendations...")
+
+    recommendations = []
+    id = request.args.get("id")
+    source_pid = request.args.get("source_pid")
+    name = request.args.get("name")
+    recommendation_name = request.args.get("recommendation_name")
+    type = request.args.get("type")
+
+    if id:
+        app.logger.info("Find by id: %s", id)
+        recommendations = Recommendation.find(id)
+    elif name:
+        app.logger.info("Find by source name: %s", name)
+        recommendations = Recommendation.find_by_name(name)
+    elif source_pid:
+        app.logger.info("Find by recommendation id: %s", source_pid)
+        recommendations = Recommendation.find_by_source_pid(source_pid)
+    elif recommendation_name:
+        app.logger.info("Find by recommendation name: %s", recommendation_name)
+        recommendations = Recommendation.find_by_name(name)
+    elif type:
+        app.logger.info("Find by type: %s", type)
+        # create enum from string
+        type_value = getattr(RecommendationType, type.upper())
+        recommendations = Recommendation.find_by_type(type_value)
+    else:
+        app.logger.info("Find all")
+        recommendations = Recommendation.all()
+
+    results = [recommendation.serialize() for recommendation in recommendations]
+
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 
-@app.route("/recommendation", methods=["POST"])
+######################################################################
+# RETRIEVE A RECOMMENDATION
+######################################################################
+@app.route("/recommendations/<int:id>", methods=["GET"])
+def get(id):
+    """This will retrieve a single recommendation based on its id"""
+    app.logger.info("Request for recommendation with id [%s]", id)
+    recommendation = Recommendation.find(id)
+    if not recommendation:
+        abort(
+            status.HTTP_404_NOT_FOUND, f"Recommendation with id '{id}' was not found."
+        )
+
+    app.logger.info("Returning recommendation: %s", recommendation.recommendation_name)
+
+    return make_response(jsonify(recommendation.serialize()), status.HTTP_200_OK)
+
+
+######################################################################
+# CREATE A RECOMMENDATION
+######################################################################
+@app.route("/recommendations", methods=["POST"])
 def post():
     """This creates a new recommendation and stores it in the database"""
 
@@ -44,10 +114,16 @@ def post():
     recommendation.deserialize(data)
     recommendation.create()
 
-    return recommendation.serialize(), status.HTTP_201_CREATED
+    location_url = url_for("get", id=recommendation.id, _external=True)
+
+    return (
+        recommendation.serialize(),
+        status.HTTP_201_CREATED,
+        {"Location": location_url},
+    )
 
 
-@app.route("/recommendation/<int:id>", methods=["DELETE"])
+@app.route("/recommendations/<int:id>", methods=["DELETE"])
 def delete(id):
     """This will delete a recommendation based on a given recommendation id"""
     app.logger.info("Delete a recommendation with id: %s", id)
@@ -58,7 +134,7 @@ def delete(id):
     if recommendation is None:
         abort(
             status.HTTP_404_NOT_FOUND,
-            "Recommendation {id} does not exist",
+            f"Recommendation with id '{id}' does not exist",
         )
     if recommendation:
         recommendation.delete()
@@ -67,7 +143,7 @@ def delete(id):
     return "", status.HTTP_204_NO_CONTENT
 
 
-@app.route("/recommendation/<int:id>", methods=["PUT"])
+@app.route("/recommendations/<int:id>", methods=["PUT"])
 def put(id):
     """This will update a recommendation given a recommendation id"""
     app.logger.info("Update a recommendation with id: %s", id)
@@ -75,32 +151,10 @@ def put(id):
     if recommendation is None:
         abort(
             status.HTTP_404_NOT_FOUND,
-            "Recommendation {id} does not exist",
+            f"Recommendation with id '{id}' does not exist",
         )
     data = request.json
     recommendation.deserialize(data)
     recommendation.update()
 
     return recommendation.serialize(), status.HTTP_200_OK
-
-
-@app.route("/recommendation/<int:id>", methods=["GET"])
-def get(id):
-    """This will list all recommendations related to given source_pid."""
-    app.logger.info(f"Request for recommendation[id={id}]")
-    recommendation = Recommendation.find(id)
-    if not recommendation:
-        abort(status.HTTP_404_NOT_FOUND, f"Recommendation {id} not found")
-    # make_response([], status.HTTP_200_OK)
-    return make_response(recommendation.serialize(), status.HTTP_200_OK)
-
-
-@app.route("/recommendation/", methods=["GET"])
-def list_all():
-    """This will list all recommendations related to given source_pid."""
-    app.logger.info("Request for Account list")
-    recommendation = Recommendation.all()
-    if not recommendation:
-        abort(status.HTTP_404_NOT_FOUND, f"None recommendation is found")
-    # make_response([], status.HTTP_200_OK)
-    return make_response([r.serialize() for r in recommendation], status.HTTP_200_OK)
