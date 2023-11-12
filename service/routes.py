@@ -57,10 +57,7 @@ def list_all():
     recommendation_name = request.args.get("recommendation_name")
     type = request.args.get("type")
 
-    if id:
-        app.logger.info("Find by id: %s", id)
-        recommendations = Recommendation.find(id)
-    elif name:
+    if name:
         app.logger.info("Find by source name: %s", name)
         recommendations = Recommendation.find_by_name(name)
     elif source_pid:
@@ -68,7 +65,7 @@ def list_all():
         recommendations = Recommendation.find_by_source_pid(source_pid)
     elif recommendation_name:
         app.logger.info("Find by recommendation name: %s", recommendation_name)
-        recommendations = Recommendation.find_by_name(name)
+        recommendations = Recommendation.find_by_rec_name(recommendation_name)
     elif type:
         app.logger.info("Find by type: %s", type)
         # create enum from string
@@ -123,6 +120,9 @@ def post():
     )
 
 
+######################################################################
+# DELETE A RECOMMENDATION
+######################################################################
 @app.route("/recommendations/<int:id>", methods=["DELETE"])
 def delete(id):
     """This will delete a recommendation based on a given recommendation id"""
@@ -143,6 +143,9 @@ def delete(id):
     return "", status.HTTP_204_NO_CONTENT
 
 
+######################################################################
+# UPDATE A RECOMMENDATION
+######################################################################
 @app.route("/recommendations/<int:id>", methods=["PUT"])
 def put(id):
     """This will update a recommendation given a recommendation id"""
@@ -158,3 +161,35 @@ def put(id):
     recommendation.update()
 
     return recommendation.serialize(), status.HTTP_200_OK
+
+
+######################################################################
+# LIKE A RECOMMENDATION
+######################################################################
+@app.route("/recommendations/<int:id>/like", methods=["PUT"])
+def like_recommendation(id):
+    """Liking a Recommendation increments its like count"""
+    recommendation = Recommendation.find(id)
+    if not recommendation:
+        abort(
+            status.HTTP_404_NOT_FOUND, f"recommendation with id '{id}' was not found."
+        )
+    recommendation.number_of_likes += 1
+    recommendation.update()
+    return make_response(jsonify(recommendation.serialize()), status.HTTP_200_OK)
+
+
+######################################################################
+# DISLIKE A RECOMMENDATION
+######################################################################
+@app.route("/recommendations/<int:id>/dislike", methods=["PUT"])
+def dislike_recommendation(id):
+    """Disliking a Recommendation decrements its like count"""
+    recommendation = Recommendation.find(id)
+    if not recommendation:
+        abort(
+            status.HTTP_404_NOT_FOUND, f"recommendation with id '{id}' was not found."
+        )
+    recommendation.number_of_likes -= 1
+    recommendation.update()
+    return make_response(jsonify(recommendation.serialize()), status.HTTP_200_OK)
