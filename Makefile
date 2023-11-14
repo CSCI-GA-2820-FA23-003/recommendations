@@ -34,7 +34,7 @@ lint: ## Run the linter
 .PHONY: tests
 test: ## Run the unit tests
 	$(info Running tests...)
-	green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
+	pytest --pspec --cov=service --cov-fail-under=95
 
 .PHONY: run
 run: ## Run the service

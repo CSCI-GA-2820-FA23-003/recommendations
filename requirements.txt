@@ -24,3 +24,8 @@ coverage==7.1.0
 
 # Utilities
 httpie==3.2.1
+
+# Testing dependencies
+pytest==7.4.0
+pytest-pspec==0.0.4
+pytest-cov==4.1.0
