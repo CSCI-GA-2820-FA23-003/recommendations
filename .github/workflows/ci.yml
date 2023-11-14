@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - fixciS
     paths-ignore:
       - "README.md"
       - ".vscode/**"
