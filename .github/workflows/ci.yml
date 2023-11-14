@@ -68,5 +68,5 @@ jobs:
         env:
           DATABASE_URI: "postgresql://postgres:pgs3cr3t@postgres:5432/testdb"
 
-      - name: Upload code coverage
+      - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3.1.4
