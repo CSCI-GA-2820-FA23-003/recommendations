@@ -26,7 +26,7 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: pgs3cr3t
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: testdb
         ports:
           - 5432:5432
@@ -40,7 +40,7 @@ jobs:
     # Steps for the build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - name: Install libraries for PostgreSQL
         run: |
@@ -64,9 +64,9 @@ jobs:
       - name: Run unit tests with green
         run: |
           export FLASK_APP=service:app
-          pytest --pspec --cov=service --cov-fail-under=95 --disable-warnings
+          green -vvv --processes=1 --run-coverage --termcolor --minimum-coverage=95
         env:
-          DATABASE_URI: "postgresql://postgres:pgs3cr3t@postgres:5432/testdb"
+          DATABASE_URI: "postgresql://postgres:postgres@postgres:5432/testdb"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3.1.4
