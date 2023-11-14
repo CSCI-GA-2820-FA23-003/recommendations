@@ -51,7 +51,7 @@ def list_all():
     app.logger.info("Request to list all recommendations...")
 
     recommendations = []
-    #id = request.args.get("id")
+    # id = request.args.get("id")
     source_pid = request.args.get("source_pid")
     name = request.args.get("name")
     recommendation_name = request.args.get("recommendation_name")
