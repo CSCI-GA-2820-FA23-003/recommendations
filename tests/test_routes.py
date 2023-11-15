@@ -238,10 +238,9 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(update_recommendation["name"], "ABC")
 
     def test_bad_request(self):
-        """It should return a bad request"""
-        target = {}
-        resp = self.client.get(BASE_URL, json=target)
-        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        """It should not create a recommendation with missing data"""
+        response = self.client.post(BASE_URL, json={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_method_not_allowed_handler(self):
         """It should trigger Method Not Allowed error handler"""
