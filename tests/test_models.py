@@ -90,6 +90,7 @@ class TestRecommendationModel(unittest.TestCase):
         self.assertEqual(fetched_target.rec_id, target.rec_id)
 
     def test_update(self):
+        """It should update a recommendation"""
         target = RecommendationFactory()
         target.create()
 
