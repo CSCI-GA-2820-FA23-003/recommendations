@@ -39,7 +39,7 @@ class Recommendation(db.Model):
     app = None
 
     # Table Schema
-    id = db.Column(db.Integer, primary_key=True)  # this is a recommendation ID
+    rec_id = db.Column(db.Integer, primary_key=True)  # this is a recommendation ID
     source_pid = db.Column(db.db.Integer)  # this is a product ID
     name = db.Column(db.String(63))  # this is a product name
     recommendation_name = db.Column(db.String(63))
@@ -52,14 +52,14 @@ class Recommendation(db.Model):
     number_of_dislikes = db.Column(db.Integer, default=0)
 
     def __repr__(self):
-        return f"<Recommendation {self.recommendation_name} id=[{self.id}]>"
+        return f"<Recommendation {self.recommendation_name} id=[{self.rec_id}]>"
 
     def create(self):
         """
         Creates a Recommendation to the database
         """
         logger.info("Creating %s", self.recommendation_name)
-        self.id = None  # pylint: disable=invalid-name
+        self.rec_id = None  # pylint: disable=invalid-name
         db.session.add(self)
         db.session.commit()
 
@@ -79,7 +79,7 @@ class Recommendation(db.Model):
     def serialize(self):
         """Serializes a Recommendation into a dictionary"""
         return {
-            "id": self.id,
+            "rec_id": self.rec_id,
             "source_pid": self.source_pid,
             "name": self.name,
             "recommendation_name": self.recommendation_name,
@@ -97,7 +97,7 @@ class Recommendation(db.Model):
         """
         try:
             self.name = data["name"]
-            self.id = data["id"]
+            self.rec_id = data["rec_id"]
             self.source_pid = data["source_pid"]
             self.recommendation_name = data["recommendation_name"]
             self.number_of_likes = data["number_of_likes"]
@@ -136,10 +136,10 @@ class Recommendation(db.Model):
         return cls.query.all()
 
     @classmethod
-    def find(cls, id):
+    def find(cls, rec_id):
         """Finds a Recommendation by it's ID"""
-        logger.info("Processing lookup for id %d ...", id)
-        return cls.query.get(id)
+        logger.info("Processing lookup for id %d ...", rec_id)
+        return cls.query.get(rec_id)
 
     @classmethod
     def find_by_name(cls, name) -> list:
@@ -172,7 +172,7 @@ class Recommendation(db.Model):
 
     @classmethod
     def find_by_type(
-        cls, type: RecommendationType = RecommendationType.CROSSSELL
+        cls, rec_type: RecommendationType = RecommendationType.CROSSSELL
     ) -> list:
         """Returns all Recommendations by their type
 
@@ -183,5 +183,5 @@ class Recommendation(db.Model):
         :rtype: list
 
         """
-        logger.info("Processing lookup for type %s...", type.name)
-        return cls.query.filter(cls.type == type)
+        logger.info("Processing lookup for type %s...", rec_type.name)
+        return cls.query.filter(cls.type == rec_type)

@@ -55,7 +55,7 @@ class TestYourResourceServer(TestCase):
         """This runs after each test"""
 
     ############################################################
-    # Utility function to bulk create recommendations
+    # Utility functions
     ############################################################
     def _create_recommendations(self, count: int = 1) -> list:
         """Factory method to create n recommendations"""
@@ -63,9 +63,6 @@ class TestYourResourceServer(TestCase):
         recommendations = []
         for _ in range(count):
             test_recommendation = RecommendationFactory()
-            # if type(args[0]) == list and i < len(args[0]):
-            #     test_recommendation.source_pid = args[0][i][0]
-            #     test_recommendation.id = args[0][i][1]
             response = self.client.post(BASE_URL, json=test_recommendation.serialize())
             self.assertEqual(
                 response.status_code,
@@ -73,9 +70,17 @@ class TestYourResourceServer(TestCase):
                 "Could not create test recommendation",
             )
             new_recommendation = response.get_json()
-            test_recommendation.id = new_recommendation["id"]
+            test_recommendation.rec_id = new_recommendation["rec_id"]
             recommendations.append(test_recommendation)
         return recommendations
+
+    # def get_rec_count(self):
+    #     """save the current number of recommendations"""
+    #     response = self.client.get(BASE_URL)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     data = response.get_json()
+    #     # logging.debug("data = %s", data)
+    #     return len(data)
 
     ######################################################################
     #  T E S T   C A S E S
@@ -110,24 +115,12 @@ class TestYourResourceServer(TestCase):
         """It should Get a specific recommendation"""
         # get the id of a recommendation
         test_recommendation = self._create_recommendations(1)[0]
-        response = self.client.get(f"{BASE_URL}/{test_recommendation.id}")
+        response = self.client.get(f"{BASE_URL}/{test_recommendation.rec_id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(
             data["recommendation_name"], test_recommendation.recommendation_name
         )
-
-        # all_recommendations = response.get_json()
-        # if len(all_recommendations) == 0:
-        #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        # else:
-        #     id = all_recommendations[0]["id"]
-        #     source_pid = all_recommendations[0]["source_pid"]
-        #     response = self.client.get(f"{BASE_URL}/{id}")
-        #     data = response.get_json()
-        #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-        #     self.assertEqual(data["id"], id)
-        #     self.assertEqual(data["source_pid"], source_pid)
 
     # ----------------------------------------------------------
     # TEST CREATE
@@ -150,11 +143,11 @@ class TestYourResourceServer(TestCase):
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
 
-        if "id" in response_data:
-            del response_data["id"]
+        if "rec_id" in response_data:
+            del response_data["rec_id"]
 
-        if "id" in data:
-            del data["id"]
+        if "rec_id" in data:
+            del data["rec_id"]
 
         self.assertEqual(response_data, data)
 
@@ -182,11 +175,11 @@ class TestYourResourceServer(TestCase):
         expected_data = data
         expected_data["type"] = RecommendationType.CROSSSELL.name
 
-        if "id" in response_data:
-            del response_data["id"]
+        if "rec_id" in response_data:
+            del response_data["rec_id"]
 
-        if "id" in data:
-            del data["id"]
+        if "rec_id" in data:
+            del data["rec_id"]
 
         # Verify that the response data matches the expected data
         self.assertEqual(response_data, data)
@@ -217,17 +210,13 @@ class TestYourResourceServer(TestCase):
     # ----------------------------------------------------------
 
     def test_delete(self):
-        """It should delete a recommendation if it is in the DB"""
-        target = RecommendationFactory()
-        target.create()
-        resp = self.client.post(BASE_URL, json=target.serialize())
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-
-        recommendation = resp.get_json()
-
-        resp = self.client.delete(f"{BASE_URL}/{recommendation['id']}")
-
+        """It should delete a recommendation"""
+        recommendations = self._create_recommendations(5)
+        # rec_count = self.get_rec_count()
+        test_rec = recommendations[0]
+        resp = self.client.delete(f"{BASE_URL}/{test_rec.rec_id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
 
     # ----------------------------------------------------------
     # TEST UPDATE
@@ -241,7 +230,9 @@ class TestYourResourceServer(TestCase):
 
         new_target = resp.get_json()
         new_target["name"] = "ABC"
-        response = self.client.put(f"{BASE_URL}/{new_target['id']}", json=new_target)
+        response = self.client.put(
+            f"{BASE_URL}/{new_target['rec_id']}", json=new_target
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         update_recommendation = response.get_json()
         self.assertEqual(update_recommendation["name"], "ABC")
@@ -317,9 +308,9 @@ class TestYourResourceServer(TestCase):
         """It should Like a Recommendation"""
         recommendations = self._create_recommendations(1)
         rec = recommendations[0]
-        response = self.client.put(f"{BASE_URL}/{rec.id}/like")
+        response = self.client.put(f"{BASE_URL}/{rec.rec_id}/like")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(f"{BASE_URL}/{rec.id}")
+        response = self.client.get(f"{BASE_URL}/{rec.rec_id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         logging.debug("Response data: %s", data)
@@ -329,11 +320,11 @@ class TestYourResourceServer(TestCase):
         """It should Dislike a Recommendation"""
         recommendations = self._create_recommendations(1)
         rec = recommendations[0]
-        response = self.client.put(f"{BASE_URL}/{rec.id}/like")
+        response = self.client.put(f"{BASE_URL}/{rec.rec_id}/like")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.put(f"{BASE_URL}/{rec.id}/dislike")
+        response = self.client.put(f"{BASE_URL}/{rec.rec_id}/dislike")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(f"{BASE_URL}/{rec.id}")
+        response = self.client.get(f"{BASE_URL}/{rec.rec_id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         logging.debug("Response data: %s", data)

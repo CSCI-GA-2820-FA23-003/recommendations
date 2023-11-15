@@ -9,7 +9,7 @@ class RecommendationFactory(factory.Factory):
     class Meta:
         model = Recommendation
 
-    id = factory.Sequence(lambda n: n)
+    rec_id = factory.Sequence(lambda n: n)
     source_pid = factory.Sequence(lambda n: n)
     name = factory.Faker("name")
     recommendation_name = factory.Faker("name")
