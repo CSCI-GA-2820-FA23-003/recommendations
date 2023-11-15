@@ -29,10 +29,15 @@ services:
   frontend: # New React frontend service
     build: ../frontend # Assumes your frontend Dockerfile and source code are in the "frontend" directory
     container_name: project_frontend
+    #runs in CI mode
+    environment:
+      - CI=true
+    #command override CMD in docker file
+    command: sh -c "CI=true npm run cucumber && npm start"
     volumes:
-      - ../frontend:/frontend # This will mount your frontend directory to the container
+      - ../frontend:/frontend 
     ports:
-      - "3000:3000" # Expose port 3000 to access the React app
+      - "3000:3000" # access the front end in localhost:3000
     networks:
       - dev
     depends_on:

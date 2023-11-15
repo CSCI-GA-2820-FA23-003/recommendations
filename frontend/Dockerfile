@@ -1,5 +1,5 @@
 # Frontend Dockerfile
-FROM node:14
+FROM node:18
 WORKDIR /frontend
 COPY package.json package-lock.json* /frontend/
 RUN npm install
