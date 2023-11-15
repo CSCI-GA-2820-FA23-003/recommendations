@@ -11,7 +11,7 @@ from service.models import db
 #   flask db-create
 ######################################################################
 @app.cli.command("db-create")
-def db_create():
+def db_create():  #
     """
     Recreates a local database. You probably should not use this on
     production. ;-)
