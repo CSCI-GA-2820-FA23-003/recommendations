@@ -329,3 +329,10 @@ class TestYourResourceServer(TestCase):
         data = response.get_json()
         logging.debug("Response data: %s", data)
         self.assertEqual(data["number_of_likes"], 0)
+
+    def test_k8s_health(self):
+        """Checking health of local k8s cluster"""
+        response = self.client.get("/health")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json, {"message": "OK", "status": 200})
