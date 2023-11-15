@@ -190,11 +190,8 @@ def dislike_recommendation(rec_id):
     recommendation.update()
     return make_response(jsonify(recommendation.serialize()), status.HTTP_200_OK)
 
+
 @app.route("/health")
 def health():
-    """
-    Endpoint to check the health of the microservice.
-    Returns:
-        A JSON response indicating the health status with HTTP_200_OK.
-    """
+    """Endpoint to check the health of the microservice."""
     return jsonify({"status": "OK"}), status.HTTP_200_OK
