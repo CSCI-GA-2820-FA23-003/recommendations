@@ -1,5 +1,5 @@
 """
-Test cases for YourResourceModel Model
+Test cases for Recommendations Model
 
 """
 import unittest
@@ -8,11 +8,11 @@ from tests.factories import RecommendationFactory
 
 
 ######################################################################
-#  YourResourceModel   M O D E L   T E S T   C A S E S
+#  Recommendation  M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
-class TestYourResourceModel(unittest.TestCase):
-    """Test Cases for YourResourceModel Model"""
+class TestRecommendationModel(unittest.TestCase):
+    """Test Cases for Recommendation Model"""
 
     @classmethod
     def setUpClass(cls):

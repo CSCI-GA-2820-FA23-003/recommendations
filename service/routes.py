@@ -6,9 +6,9 @@ Describe what your service does here
 
 # Import Flask application
 from flask import jsonify, request, abort, url_for, make_response
+from flask_sqlalchemy import SQLAlchemy
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation, RecommendationType
-from flask_sqlalchemy import SQLAlchemy
 from . import app
 
 db = SQLAlchemy()
