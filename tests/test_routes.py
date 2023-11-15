@@ -8,6 +8,7 @@ Test cases can be run with the following:
 import os
 import logging
 import json
+from urllib.parse import quote_plus
 from unittest import TestCase
 from service import app
 from service.models import Recommendation, RecommendationType, db, init_db
@@ -54,7 +55,7 @@ class TestYourResourceServer(TestCase):
         """This runs after each test"""
 
     ############################################################
-    # Utility function to bulk create recommendations
+    # Utility functions
     ############################################################
     def _create_recommendations(self, count: int = 1) -> list:
         """Factory method to create n recommendations"""
@@ -62,9 +63,6 @@ class TestYourResourceServer(TestCase):
         recommendations = []
         for _ in range(count):
             test_recommendation = RecommendationFactory()
-            # if type(args[0]) == list and i < len(args[0]):
-            #     test_recommendation.source_pid = args[0][i][0]
-            #     test_recommendation.id = args[0][i][1]
             response = self.client.post(BASE_URL, json=test_recommendation.serialize())
             self.assertEqual(
                 response.status_code,
@@ -72,9 +70,17 @@ class TestYourResourceServer(TestCase):
                 "Could not create test recommendation",
             )
             new_recommendation = response.get_json()
-            test_recommendation.id = new_recommendation["id"]
+            test_recommendation.rec_id = new_recommendation["rec_id"]
             recommendations.append(test_recommendation)
         return recommendations
+
+    # def get_rec_count(self):
+    #     """save the current number of recommendations"""
+    #     response = self.client.get(BASE_URL)
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     data = response.get_json()
+    #     # logging.debug("data = %s", data)
+    #     return len(data)
 
     ######################################################################
     #  T E S T   C A S E S
@@ -109,24 +115,12 @@ class TestYourResourceServer(TestCase):
         """It should Get a specific recommendation"""
         # get the id of a recommendation
         test_recommendation = self._create_recommendations(1)[0]
-        response = self.client.get(f"{BASE_URL}/{test_recommendation.id}")
+        response = self.client.get(f"{BASE_URL}/{test_recommendation.rec_id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(
             data["recommendation_name"], test_recommendation.recommendation_name
         )
-
-        # all_recommendations = response.get_json()
-        # if len(all_recommendations) == 0:
-        #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        # else:
-        #     id = all_recommendations[0]["id"]
-        #     source_pid = all_recommendations[0]["source_pid"]
-        #     response = self.client.get(f"{BASE_URL}/{id}")
-        #     data = response.get_json()
-        #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-        #     self.assertEqual(data["id"], id)
-        #     self.assertEqual(data["source_pid"], source_pid)
 
     # ----------------------------------------------------------
     # TEST CREATE
@@ -149,11 +143,11 @@ class TestYourResourceServer(TestCase):
         # Deserialize the response JSON
         response_data = json.loads(response.data.decode("utf-8"))
 
-        if "id" in response_data:
-            del response_data["id"]
+        if "rec_id" in response_data:
+            del response_data["rec_id"]
 
-        if "id" in data:
-            del data["id"]
+        if "rec_id" in data:
+            del data["rec_id"]
 
         self.assertEqual(response_data, data)
 
@@ -181,11 +175,11 @@ class TestYourResourceServer(TestCase):
         expected_data = data
         expected_data["type"] = RecommendationType.CROSSSELL.name
 
-        if "id" in response_data:
-            del response_data["id"]
+        if "rec_id" in response_data:
+            del response_data["rec_id"]
 
-        if "id" in data:
-            del data["id"]
+        if "rec_id" in data:
+            del data["rec_id"]
 
         # Verify that the response data matches the expected data
         self.assertEqual(response_data, data)
@@ -211,18 +205,22 @@ class TestYourResourceServer(TestCase):
         response = self.client.post(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
+    # ----------------------------------------------------------
+    # TEST DELETE
+    # ----------------------------------------------------------
+
     def test_delete(self):
-        """It should delete a recommendation if it is in the DB"""
-        target = RecommendationFactory()
-        target.create()
-        resp = self.client.post(BASE_URL, json=target.serialize())
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-
-        recommendation = resp.get_json()
-
-        resp = self.client.delete(f"{BASE_URL}/{recommendation['id']}")
-
+        """It should delete a recommendation"""
+        recommendations = self._create_recommendations(5)
+        # rec_count = self.get_rec_count()
+        test_rec = recommendations[0]
+        resp = self.client.delete(f"{BASE_URL}/{test_rec.rec_id}")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+
+    # ----------------------------------------------------------
+    # TEST UPDATE
+    # ----------------------------------------------------------
 
     def test_update_recommendation(self):
         """It should update a recommendation"""
@@ -232,14 +230,12 @@ class TestYourResourceServer(TestCase):
 
         new_target = resp.get_json()
         new_target["name"] = "ABC"
-        response = self.client.put(f"{BASE_URL}/{new_target['id']}", json=new_target)
+        response = self.client.put(
+            f"{BASE_URL}/{new_target['rec_id']}", json=new_target
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         update_recommendation = response.get_json()
         self.assertEqual(update_recommendation["name"], "ABC")
-
-    ######################################################################
-    #  P L A C E   T E S T   C A S E S   H E R E
-    ######################################################################
 
     def test_bad_request(self):
         """It should return a bad request"""
@@ -247,29 +243,90 @@ class TestYourResourceServer(TestCase):
         resp = self.client.get(BASE_URL, json=target)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_delete_nonexistent_recommendation(self):
-        # Choose an ID that is very unlikely to exist in your database
-        nonexistent_id = 9999999
+    def test_method_not_allowed_handler(self):
+        """It should trigger Method Not Allowed error handler"""
+        resp = self.client.delete(f"{BASE_URL}")
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-        # Send a DELETE request to the /recommendation/{id} route with the non-existent ID
-        response = self.client.delete(f"{BASE_URL}/{nonexistent_id}")
+    # ----------------------------------------------------------
+    # TEST QUERY
+    # ----------------------------------------------------------
+    def test_query_by_product_name(self):
+        """It should Query Recommendations by a source product name"""
+        recommendations = self._create_recommendations(5)
+        test_name = recommendations[0].name
+        name_count = len([rec for rec in recommendations if rec.name == test_name])
+        response = self.client.get(
+            BASE_URL, query_string=f"name={quote_plus(test_name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["name"], test_name)
 
-        # Check that the response status code is 404
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_query_by_recommendation_name(self):
+        """It should Query Recommendations by its name"""
+        recommendations = self._create_recommendations(5)
+        test_name = recommendations[0].recommendation_name
+        name_count = len(
+            [rec for rec in recommendations if rec.recommendation_name == test_name]
+        )
+        response = self.client.get(
+            BASE_URL, query_string=f"recommendation_name={quote_plus(test_name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["recommendation_name"], test_name)
 
-    def test_put_nonexistent_recommendation(self):
-        """It should return 404 when trying to update a non-existent recommendation"""
-        # Choose an ID that is very unlikely to exist in your database
-        nonexistent_id = 9999999
+    def test_query_by_type(self):
+        """It should Query Recommendations by its type"""
+        recommendations = self._create_recommendations(10)
+        test_type = recommendations[0].type
+        type_recs = [rec for rec in recommendations if rec.type == test_type]
+        type_count = len(type_recs)
+        logging.debug("Recommendation Type [%d] %s", type_count, type_recs)
 
-        # Define a sample JSON data for the update request
-        update_data = {
-            "field1": "new_value1",
-            "field2": "new_value2",
-            # Add other fields as needed
-        }
+        # test for available
+        response = self.client.get(
+            BASE_URL, query_string=f"type={quote_plus(test_type.name)}"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), type_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["type"], test_type.name)
 
-        # Send a PUT request to the /recommendation/{id} route with the non-existent ID and update data
-        response = self.client.put(f"{BASE_URL}/{nonexistent_id}", json=update_data)
+    # ----------------------------------------------------------
+    # TEST LIKE
+    # ----------------------------------------------------------
+    def test_like(self):
+        """It should Like a Recommendation"""
+        recommendations = self._create_recommendations(1)
+        rec = recommendations[0]
+        response = self.client.put(f"{BASE_URL}/{rec.rec_id}/like")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(f"{BASE_URL}/{rec.rec_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("Response data: %s", data)
+        self.assertEqual(data["number_of_likes"], 1)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_dislike(self):
+        """It should Dislike a Recommendation"""
+        recommendations = self._create_recommendations(1)
+        rec = recommendations[0]
+        response = self.client.put(f"{BASE_URL}/{rec.rec_id}/like")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.put(f"{BASE_URL}/{rec.rec_id}/dislike")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(f"{BASE_URL}/{rec.rec_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("Response data: %s", data)
+        self.assertEqual(data["number_of_likes"], 0)

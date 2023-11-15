@@ -1,5 +1,5 @@
 """
-Test cases for YourResourceModel Model
+Test cases for Recommendations Model
 
 """
 import unittest
@@ -8,11 +8,11 @@ from tests.factories import RecommendationFactory
 
 
 ######################################################################
-#  YourResourceModel   M O D E L   T E S T   C A S E S
+#  Recommendation  M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
-class TestYourResourceModel(unittest.TestCase):
-    """Test Cases for YourResourceModel Model"""
+class TestRecommendationModel(unittest.TestCase):
+    """Test Cases for Recommendation Model"""
 
     @classmethod
     def setUpClass(cls):
@@ -37,7 +37,7 @@ class TestYourResourceModel(unittest.TestCase):
         fake_rec = RecommendationFactory()
         data = fake_rec.serialize()
         self.assertNotEqual(data, None)
-        self.assertEqual(data["id"], fake_rec.id)
+        self.assertEqual(data["rec_id"], fake_rec.rec_id)
         self.assertEqual(data["source_pid"], fake_rec.source_pid)
         self.assertEqual(data["name"], fake_rec.name)
         self.assertEqual(data["recommendation_name"], fake_rec.recommendation_name)
@@ -51,7 +51,7 @@ class TestYourResourceModel(unittest.TestCase):
         data = fake_rec.serialize()
         recommendation = Recommendation().deserialize(data)
         self.assertNotEqual(recommendation, None)
-        self.assertEqual(recommendation.id, data["id"])
+        self.assertEqual(recommendation.rec_id, data["rec_id"])
         self.assertEqual(recommendation.source_pid, data["source_pid"])
         self.assertEqual(recommendation.name, data["name"])
         self.assertEqual(
@@ -63,7 +63,7 @@ class TestYourResourceModel(unittest.TestCase):
 
     def test_deserialize_missing_data(self):
         """It should not deserialize a recommendation with missing data"""
-        data = {"id": 0, "name": "cookie"}
+        data = {"rec_id": 0, "name": "cookie"}
         recommendation = Recommendation()
         self.assertRaises(DataValidationError, recommendation.deserialize, data)
 
@@ -85,11 +85,12 @@ class TestYourResourceModel(unittest.TestCase):
         """It should find a recommendation by its id"""
         target = RecommendationFactory()
         target.create()
-        fetched_target = Recommendation.find(target.id)
+        fetched_target = Recommendation.find(target.rec_id)
         self.assertIsNot(fetched_target, None)
-        self.assertEqual(fetched_target.id, target.id)
+        self.assertEqual(fetched_target.rec_id, target.rec_id)
 
     def test_update(self):
+        """It should update a recommendation"""
         target = RecommendationFactory()
         target.create()
 
@@ -97,5 +98,5 @@ class TestYourResourceModel(unittest.TestCase):
         target.source_pid = new_source_pid
         target.update()
 
-        fetched_target = Recommendation.find(target.id)
+        fetched_target = Recommendation.find(target.rec_id)
         self.assertEqual(fetched_target.source_pid, new_source_pid)
