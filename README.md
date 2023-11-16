@@ -117,7 +117,45 @@ tests/              - test cases package
 ├── factories       - factory for creating test objects
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
+
+k8s/                  - kubernetes yaml file
+├── deployment.yaml   - App deployment configuration
+├── ingress.yaml      - Ingress resource setup
+└── postgres.yaml     - Postgres resource setup
+└── pv.yaml           - Persistent volume configuration
+└── secret.yaml       - Sensitive data management
+└── service.yaml      - Service exposure settings
 ```
+
+## Local Kubernetes Cluster Deployment Guide
+
+- Initialize a Kubernetes Cluster 
+  - Execute the command below in your terminal to initiate a new Kubernetes cluster:  
+    ```make cluster```
+- Docker Image Preparation and Tag 
+  - We need to build the Docker image of the project, tag it. 
+  ```docker build -t recommendation:1.0 .```
+
+    ```docker tag recommendation:1.0 cluster-registry:32000/customer:1.0```
+
+- Add to etc/hosts 
+  - Before pushing, ensure that cluster-registry:32000 is mapped to 127.0.0.1 in your /etc/hosts file.
+
+    ```sudo bash -c "echo '127.0.0.1 cluster-registry' >> /etc/hosts"```
+
+- Push the image to the repository 
+  - After building and tagging the Docker image. Push it to your registry.
+
+    ```docker push cluster-registry:32000/recommendation:1.0```
+
+- Deploying on Kubernetes
+  - To deploy the Postgres database as a StatefulSet along with the image we created, run the following:
+
+    ```kubectl apply -f k8s```
+
+- Verifying the Deployment
+  - The service should be accessible at `localhost:8080`
+  - For deployment health checks, use the `/health` endpoint.
 
 ## License
 
