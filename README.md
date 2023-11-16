@@ -5,50 +5,70 @@
 [![codecov](https://codecov.io/gh/CSCI-GA-2820-FA23-003/recommendations/graph/badge.svg?token=VNH31V6V4Q)](https://codecov.io/gh/CSCI-GA-2820-FA23-003/recommendations)
 [![Build Status](https://github.com/CSCI-GA-2820-FA23-003/recommendations/actions/workflows/ci.yml/badge.svg)](https://github.com/CSCI-GA-2820-FA23-003/recommendations/actions)
 
-<!-- This is a skeleton you can use to start your projects -->
 
 ## Overview
 
-This project is the a microserivce recommendation service. 
-- `/service` folder contains the `models.py` file for the model and a `routes.py` file for APIs. 
-- `/tests` folder has test case starter code for testing the model and the service separately.
+- This project involves designing, planning, building, and deploying a cloud-native microservice (Recommendation service) that is part of an eCommerce website.
+- The recommendations service is a representation of a product recommendation based on another product. In essence, it is just a relationship between two products that "go together" (e.g., radio and batteries, printers and ink, shirts and pants, etc.). It could also recommend based on what other customers have purchased like "customers who bought item A usually buy item B". Recommendations have 3 different types: cross-sell, up-sell, and accessory.
 
-## APIs
+
+## REST API Endpoints
+All APIs have a common route prefix: http://localhost:8080/recommendations
+
 ### GET
-- Getting the list of all recommendations
-- Getting the list of a specific recommendation with given ID
-- Paramseters:
-  - `id`: int
-```
-GET /recommendations
-GET /recommendations/<id>
-```
-### POST
-- Create a Recommendation
-- Parameters
-  - `source_pid`: int
-  - `name`: string
-  - `recommendation_pid`: int
-  - `recommendation_name`: string
-  - `type`: int
-```
-POST /recommendations
-```
-### PUT
-- Update a Recommendation with given ID
-- Parameters
-  - `id`: int
-```
-PUT /recommendations/<id>
-```
-### DELETE
-- Delete a Recommendation with given ID
-- Parameters
-  - `id`: int
-```
-DELETE /recommendations/<id>
-```
+- list_all(): Returns the list of all Recommendations.
+  - It has a query capability that filters the results based on its name(recommendation_name), source product name(source_name), source product id(source_pid), and type(recommendation_type).
+    ```
+    GET /recommendations
+    ```
 
+- get(rec_id): Retrieves a specific Recommendation based on its ID
+  - Parameter:
+    - `rec_id`: int
+    ```
+    GET /recommendations/<id>
+    ```
+
+### POST
+- post(): Creates a Recommendation
+  - Parameters
+    - `source_pid`: int
+    - `name`: string
+    - `recommendation_name`: string
+    - `type`: int
+    ```
+    POST /recommendations
+    ```
+
+### PUT
+- put(rec_id): Updates a Recommendation given its ID
+  - Parameters
+    - `rec_id`: int
+    ```
+    PUT /recommendations/<id>
+    ```
+
+- like_recommendation(rec_id): Likes a Recommendation, which increments its like count
+  - Parameters
+    - `rec_id`: int
+    ```
+    PUT /recommendations/<id>/like
+    ```
+    
+- dislike_recommendation(rec_id): Likes a Recommendation, which increments its dislike count
+  - Parameters
+    - `rec_id`: int
+    ```
+    PUT /recommendations/<id>/dislike
+    ```
+
+### DELETE
+- put(rec_id): Deletes a Recommendation given its ID
+  - Parameters
+    - `rec_id`: int
+    ```
+    DELETE /recommendations/<id>
+    ```
 
 <!-- This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from. -->
 
@@ -94,6 +114,7 @@ service/                   - service python package
 
 tests/              - test cases package
 ├── __init__.py     - package initializer
+├── factories       - factory for creating test objects
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
 
@@ -119,23 +140,23 @@ k8s/                  - kubernetes yaml file
 
 - Add to etc/hosts 
   - Before pushing, ensure that cluster-registry:32000 is mapped to 127.0.0.1 in your /etc/hosts file.
-  
+
     ```sudo bash -c "echo '127.0.0.1 cluster-registry' >> /etc/hosts"```
 
 - Push the image to the repository 
   - After building and tagging the Docker image. Push it to your registry.
-  
+
     ```docker push cluster-registry:32000/recommendation:1.0```
 
 - Deploying on Kubernetes
   - To deploy the Postgres database as a StatefulSet along with the image we created, run the following:
-  
+
     ```kubectl apply -f k8s```
 
 - Verifying the Deployment
   - The service should be accessible at `localhost:8080`
   - For deployment health checks, use the `/health` endpoint.
-  
+
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
