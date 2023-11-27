@@ -42,7 +42,7 @@ class Recommendation(db.Model):
     rec_id = db.Column(db.Integer, primary_key=True)  # this is a recommendation ID
     source_pid = db.Column(db.db.Integer)  # this is a product ID
     name = db.Column(db.String(63))  # this is a product name
-    recommendation_name = db.Column(db.String(63))
+    recommendation_name = db.Column(db.String(63))  # this is a recommendation name
     type = db.Column(
         db.Enum(RecommendationType),
         nullable=False,
