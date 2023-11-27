@@ -71,7 +71,7 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update a Recommendation
     // ****************************************
 
     $("#update-btn").click(function () {
@@ -92,7 +92,7 @@ $(function () {
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/pets/${pet_id}`,
+                url: `/recommendations/${rec_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -109,7 +109,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Recommendation
     // ****************************************
 
     $("#retrieve-btn").click(function () {
@@ -139,7 +139,7 @@ $(function () {
     });
 
     // ****************************************
-    // Delete a Pet
+    // Delete a Recommendation
     // ****************************************
 
     $("#delete-btn").click(function () {
@@ -241,8 +241,8 @@ $(function () {
             $("#search_results").append(table);
 
             // copy the first result to the form
-            if (firstPet != "") {
-                update_form_data(firstPet)
+            if (firstRec != "") {
+                update_form_data(firstRec)
             }
 
             flash_message("Success")
