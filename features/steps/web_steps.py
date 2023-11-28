@@ -25,7 +25,7 @@ For information on Waiting until elements are present in the HTML see:
     https://selenium-python.readthedocs.io/waits.html
 """
 import logging
-from behave import when, then
+from behave import when, then  # pylint: disable=no-name-in-module
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
@@ -36,7 +36,7 @@ ID_PREFIX = "rec_"
 @when('I visit the "Home Page"')
 def step_impl(context):
     """Make a call to the base URL"""
-    context.driver.get(context.BASE_URL)
+    context.driver.get(context.base_url)
     # Uncomment next line to take a screenshot of the web page
     # context.driver.save_screenshot('home_page.png')
 

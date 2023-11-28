@@ -23,33 +23,39 @@ For information on Waiting until elements are present in the HTML see:
     https://selenium-python.readthedocs.io/waits.html
 """
 import requests
-from behave import given
+from behave import given  # pylint: disable=no-name-in-module
+from compare import expect
 
 # HTTP Return Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
 
-@given('the following recommendations')
+
+@given("the following recommendations")
 def step_impl(context):
-    """ Delete all Recommendations and load new ones """
+    """Delete all Recommendations and load new ones"""
 
     # List all of the recommendations and delete them one by one
     rest_endpoint = f"{context.base_url}/recommendations"
     context.resp = requests.get(rest_endpoint)
-    assert(context.resp.status_code == HTTP_200_OK)
+    expect(context.resp.status_code).to_equal(200)
     for rec in context.resp.json():
         context.resp = requests.delete(f"{rest_endpoint}/{rec['rec_id']}")
-        assert(context.resp.status_code == HTTP_204_NO_CONTENT)
+        expect(context.resp.status_code).to_equal(204)
 
-    # load the database with new pets
+    # load the database with new recommendations
     for row in context.table:
         payload = {
-            "source_pid": row['source_pid'],
-            "name": row['name'],
-            "recommendation_name": row['recommendation_name'],
-            "type": row['type'],
-            "number_of_likes": row['number_of_likes']
+            "rec_id": row["rec_id"],
+            "source_pid": row["source_pid"],
+            "name": row["name"],
+            "recommendation_name": row["recommendation_name"],
+            "type": row["type"],
+            "number_of_likes": row["number_of_likes"],
+            "number_of_dislikes": row["number_of_dislikes"],
         }
         context.resp = requests.post(rest_endpoint, json=payload)
-        assert(context.resp.status_code == HTTP_201_CREATED)
+        print("working3")
+        expect(context.resp.status_code).to_equal(201)
+        print("working4")
