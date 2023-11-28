@@ -6,24 +6,24 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#rec_id").val(res.rec_id);
-        $("#recommendation_name").val(res.recommendation_name);
-        $("#source_pid").val(res.source_pid);
-        $("#name").val(res.name);
-        $("#type").val(res.type);
-        $("#number_of_likes").val(res.number_of_likes);
-        $("#number_of_dislikes").val(res.number_of_dislikes);
+        $("#rec_rec_id").val(res.rec_id);
+        $("#rec_recommendation_name").val(res.recommendation_name);
+        $("#rec_source_pid").val(res.source_pid);
+        $("#rec_name").val(res.name);
+        $("#rec_type").val(res.type);
+        $("#rec_number_of_likes").val(res.number_of_likes);
+        $("#rec_number_of_dislikes").val(res.number_of_dislikes);
     }
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#rec_id").val("");
-        $("#recommendation_name").val("");
-        $("#source_pid").val("");
-        $("#name").val("");
-        $("#type").val("");
-        $("#number_of_likes").val("");
-        $("#number_of_dislikes").val("");
+        $("#rec_rec_id").val("");
+        $("#rec_recommendation_name").val("");
+        $("#rec_source_pid").val("");
+        $("#rec_name").val("");
+        $("#rec_type").val("");
+        $("#rec_number_of_likes").val("");
+        $("#rec_number_of_dislikes").val("");
     }
 
     // Updates the flash message area
@@ -38,10 +38,10 @@ $(function () {
 
     $("#create-btn").click(function () {
 
-        let recommendation_name = $("#recommendation_name").val();
-        let source_pid = $("#source_pid").val();
-        let name = $("#name").val();
-        let type = $("#type").val();
+        let recommendation_name = $("#rec_recommendation_name").val();
+        let source_pid = $("#rec_source_pid").val();
+        let name = $("#rec_name").val();
+        let type = $("#rec_type").val();
 
         let data = {
             "recommendation_name": recommendation_name,
@@ -76,10 +76,10 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        let recommendation_name = $("#recommendation_name").val();
-        let source_pid = $("#source_pid").val();
-        let name = $("#name").val();
-        let type = $("#type").val();
+        let recommendation_name = $("#rec_recommendation_name").val();
+        let source_pid = $("#rec_source_pid").val();
+        let name = $("#rec_name").val();
+        let type = $("#rec_type").val();
 
         let data = {
             "recommendation_name": recommendation_name,
@@ -114,7 +114,7 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
 
-        let rec_id = $("#rec_id").val();
+        let rec_id = $("#rec_rec_id").val();
 
         $("#flash_message").empty();
 
@@ -144,7 +144,7 @@ $(function () {
 
     $("#delete-btn").click(function () {
 
-        let rec_id = $("#rec_id").val();
+        let rec_id = $("#rec_rec_id").val();
 
         $("#flash_message").empty();
 
@@ -170,7 +170,7 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#rec_id").val("");
+        $("#rec_rec_id").val("");
         $("#flash_message").empty();
         clear_form_data()
     });
@@ -182,10 +182,10 @@ $(function () {
     $("#search-btn").click(function () {
 
 
-        let recommendation_name = $("#recommendation_name").val();
-        let source_pid = $("#source_pid").val();
-        let name = $("#name").val();
-        let type = $("#type").val();
+        let recommendation_name = $("#rec_recommendation_name").val();
+        let source_pid = $("#rec_source_pid").val();
+        let name = $("#rec_name").val();
+        let type = $("#rec_type").val();
 
         let queryString = ""
 
