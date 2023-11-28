@@ -102,11 +102,15 @@ def get(rec_id):
 def post():
     """This creates a new recommendation and stores it in the database"""
 
-    data = request.json
+    app.logger.info("Request to Create a Recommendation...")
+
+    data = request.get_json()
+    app.logger.info("Processing: %s", data)
 
     recommendation = Recommendation()
     recommendation.deserialize(data)
     recommendation.create()
+    app.logger.info("Recommendation with new id [%s] saved!", recommendation.rec_id)
 
     location_url = url_for("get", rec_id=recommendation.rec_id, _external=True)
 

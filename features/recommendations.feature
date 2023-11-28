@@ -1,15 +1,15 @@
-Feature: The Recommendation store service back-end
+Feature: The Recommendation service back-end
     As a Recommendation Owner
-    I need a RESTful catalog service
+    I need a RESTful recommendation service
     So that I can keep track of all my Recommendations
 
 Background:
     Given the following recommendations
-        | recommendation_name       | source_pid | name         | type       | number of likes | number of dislikes |
-        | marshmellow               | 1          | chocolate    | CROSSSELL  | 0 | 0 |
-        | yogurt                    | 2          | granola      | CROSSSELL  | 1 | 0 |
-        | strawberry                | 3          | blueberry    | CROSSSELL  | 2 | 1 |
-        | red wine                  | 4          | wine opener  | ACCESSORY  | 3 | 2 |
+        |rec_id | source_pid | name         | recommendation_name  | type       | number_of_likes | number_of_dislikes |
+        |1      | 1          | chocolate    | marshmellow          | CROSSSELL  | 0 | 0 |
+        |2      | 2          | granola      | yogurt               | CROSSSELL  | 1 | 0 |
+        |3      | 3          | blueberry    | strawberry           | CROSSSELL  | 2 | 1 |
+        |4      | 4          | wine opener  | red wine             | ACCESSORY  | 3 | 2 |
 
 Scenario: The server is running
     When I visit the "Home Page"
