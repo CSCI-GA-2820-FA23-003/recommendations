@@ -47,6 +47,17 @@ Scenario: The server is running
 #     And I should see "kitty" in the results
 #     And I should not see "leo" in the results
 
+
+Scenario: List all Recommendations
+        When I visit the "home page"
+        And I press the "Clear" button
+        And I press the "Search" button
+        Then I should see the message "Success"
+        And I should see "yogurt" in the results
+        And I should see "strawberry" in the results
+        # And I should see "strawberry1" in the results
+
+
 # Scenario: Search for dogs
 #     When I visit the "Home Page"
 #     And I set the "Category" to "dog"
