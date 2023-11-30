@@ -38,16 +38,22 @@ $(function () {
 
     $("#create-btn").click(function () {
 
+        let rec_id = $("#rec_rec_id").val();
         let recommendation_name = $("#rec_recommendation_name").val();
         let source_pid = $("#rec_source_pid").val();
         let name = $("#rec_name").val();
         let type = $("#rec_type").val();
+        let number_of_likes = $("#rec_number_of_likes").val();
+        let number_of_dislikes = $("#rec_number_of_dislikes").val();
 
         let data = {
+            "rec_id": rec_id,
             "recommendation_name": recommendation_name,
             "source_pid": source_pid,
             "name": name,
-            "type": type
+            "type": type,
+            "number_of_likes": number_of_likes,
+            "number_of_dislikes": number_of_dislikes
         };
 
         $("#flash_message").empty();

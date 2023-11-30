@@ -25,11 +25,18 @@ For information on Waiting until elements are present in the HTML see:
 import requests
 from behave import given  # pylint: disable=no-name-in-module
 from compare import expect
+from enum import Enum
 
 # HTTP Return Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
+
+
+class RecommendationType(Enum):
+    CROSSSELL = 0
+    UPSELL = 1
+    ACCESSORY = 2
 
 
 @given("the following recommendations")
@@ -51,7 +58,7 @@ def step_impl(context):
             "source_pid": row["source_pid"],
             "name": row["name"],
             "recommendation_name": row["recommendation_name"],
-            "type": row["type"],
+            "type": row["type"].upper(),
             "number_of_likes": row["number_of_likes"],
             "number_of_dislikes": row["number_of_dislikes"],
         }
