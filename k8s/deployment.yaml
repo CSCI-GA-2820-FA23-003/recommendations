@@ -23,9 +23,9 @@ spec:
       containers:
       - name: recommendation
         image: cluster-registry:32000/recommendation:1.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8000
+        - containerPort: 8080
           protocol: TCP
         env:
           - name: DATABASE_URI
