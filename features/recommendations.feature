@@ -113,5 +113,7 @@ Scenario: Delete a Customer
     And the "name" field should be empty                             
     And the "recommendation_name" field should be empty              
     When I paste the "rec_id" field                                      
-    And I press the "Delete" button                                  
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I press the "Delete" button                                  
     Then I should see the message "Recommendation has been Deleted!"   
