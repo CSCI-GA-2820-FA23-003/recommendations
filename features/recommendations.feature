@@ -85,14 +85,14 @@ Scenario: Update a Recommendation
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "marshmellow" in the "recommendation_name" field
-    And I should see "CROSSSELL" in the "type" dropdown
-    WHEN I select "ACCESSORY" in the "type" dropdown
+    And I should see "CROSSSELL" in the "type" field
+    When I change "type" to "ACCESSORY"
     And I press the "Update" button
     Then I should see the message "Success"
     When I set the "rec_id" to "1"
     And I press the "Search" button
     Then I should see the message "Success"
-    AND I should see "ACCESSORY" in the results
+    And I should see "ACCESSORY" in the results
     And I should not see "CROSSSELL" in the results
 
 Scenario: Delete a Customer
