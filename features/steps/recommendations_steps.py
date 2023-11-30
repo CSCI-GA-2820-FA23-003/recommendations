@@ -25,18 +25,11 @@ For information on Waiting until elements are present in the HTML see:
 import requests
 from behave import given  # pylint: disable=no-name-in-module
 from compare import expect
-from enum import Enum
 
 # HTTP Return Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
-
-
-class RecommendationType(Enum):
-    CROSSSELL = 0
-    UPSELL = 1
-    ACCESSORY = 2
 
 
 @given("the following recommendations")
