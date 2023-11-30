@@ -15,4 +15,4 @@ spec:
           service:
             name: recommendation
             port:
-              number: 8000
+              number: 8080
