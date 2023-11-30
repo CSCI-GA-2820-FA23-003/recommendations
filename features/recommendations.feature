@@ -96,6 +96,7 @@ Scenario: Update a Recommendation
     When I change "recommendation_name" to "oreo"
     And I press the "Update" button
     Then I should see the message "Success"
+    And I should see "oreo" in the "recommendation_name" field
 
 # Scenario: Delete a Recommendation
 #     When I visit the "Home Page"
