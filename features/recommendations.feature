@@ -115,12 +115,12 @@ Scenario: Delete a Customer
     And I set the "rec_id" to "1"
     And I press the "Search" button
     Then I should see the message "Success"
-    When I copy the "rec_id" field
-    And I press the "Clear" button
-    Then the "rec_id" field should be empty
+    When I copy the "rec_id" field 
+    And I press the "Clear" button                            
+    Then the "rec_id" field should be empty                           
     And the "source_pid" field should be empty                       
     And the "name" field should be empty                             
     And the "recommendation_name" field should be empty              
-    When I paste the "rec_id" field
+    When I paste the "rec_id" field                                      
     And I press the "Delete" button                                  
 #    Then I should see the message "Recommendation has been Deleted!"
