@@ -11,10 +11,10 @@ Background:
         |3      | 3          | blueberry    | strawberry           | CROSSSELL  | 2 | 1 |
         |4      | 4          | wine opener  | red wine             | ACCESSORY  | 3 | 2 |
 
-# Scenario: The server is running
-#     When I visit the "Home Page"
-#     Then I should see "Recommendation RESTful Service" in the title
-#     And I should not see "404 Not Found"
+Scenario: The server is running
+    When I visit the "Home Page"
+    Then I should see "Recommendation RESTful Service" in the title
+    And I should not see "404 Not Found"
 
 Scenario: Create a Recommendation
     When I visit the "Home Page"
