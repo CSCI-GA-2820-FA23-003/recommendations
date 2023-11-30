@@ -86,7 +86,7 @@ Scenario: Update a Recommendation
     Then I should see the message "Success"
     And I should see "marshmellow" in the "recommendation_name" field
     And I should see "CROSSSELL" in the "type" field
-    When I change "name" to "bronie"
+    When I change "name" to "blueberry"
     And I press the "Update" button
     Then I should see the message "Success"
     When I copy the "rec_id" field
@@ -94,11 +94,11 @@ Scenario: Update a Recommendation
     And I paste the "rec_id" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
-    And I should see "bronie" in the "name" field
+    And I should see "blueberry" in the "name" field
     When I press the "Clear" button
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "bronie" in the results
+    And I should see "blueberry" in the results
     And I should not see "chocolate" in the results
 
 Scenario: Delete a Customer
