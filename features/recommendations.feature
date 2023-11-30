@@ -111,7 +111,7 @@ Scenario: Delete a Customer
     Then I should see the message "Success"
     When I copy the "rec_id" field 
     And I press the "Clear" button                            
-    And the "rec_id" field should be empty                           
+    Then the "rec_id" field should be empty                           
     And the "source_pid" field should be empty                       
     And the "name" field should be empty                             
     And the "recommendation_name" field should be empty              
