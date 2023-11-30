@@ -101,16 +101,21 @@ Scenario: List all Recommendations
 #     And I should see "Loki" in the results
 #     And I should not see "fido" in the results
 
-# Scenario: Delete a Recommendation
-#     When I visit the "Home Page"
-#     And I set the "Name" to "fido"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the "Name" field
-#     And I should see "dog" in the "Category" field
-#     When I press the "Delete" button
-#     Then I should see the message "Recommendation has been Deleted!"
-#     When I press the "Clear" button
-#     When I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should not see "fido" in the results
+Scenario: Delete a Customer
+    When I visit the "Home Page"
+    And I set the "name" to "chocolate"
+    And I set the "recommendation_name" to "marshmellow"
+    And I set the "source_pid" to "1"
+    And I set the "rec_id" to "1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "rec_id" field should be empty
+    And the "source_pid" field should be empty
+    And the "name" field should be empty
+    And the "recommendation_name" field should be empty
+    When I paste the "Id" field
+    And I press the "Delete" button
+    Then I should see the message "Recommendation has been Deleted!"
