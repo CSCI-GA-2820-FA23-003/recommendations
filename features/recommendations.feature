@@ -59,25 +59,31 @@ Scenario: List all Recommendations
         And I should see "strawberry" in the results
         # And I should see "strawberry1" in the results
 
+Scenario: Search via ACCESSORY type
+    When I visit the "Home Page"
+    And I select "Accessory" in the "type" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "red wine" in the "recommendation_name" field
+    And I should see "wine opener" in the "name" field
+    And I should see "3" in the "number_of_likes" field
+    And I should see "2" in the "number_of_dislikes" field
 
-# Scenario: Search for dogs
-#     When I visit the "Home Page"
-#     And I set the "Category" to "dog"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the results
-#     And I should not see "kitty" in the results
-#     And I should not see "leo" in the results
-
-# Scenario: Search for available
-#     When I visit the "Home Page"
-#     And I select "True" in the "Available" dropdown
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should see "sammy" in the results
-#     And I should not see "leo" in the results
+Scenario: Search via Recommendation Id
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "rec_id" field
+    And I press the "Clear" button
+    Then the "rec_id" field should be empty
+    And the "source_pid" field should be empty                       
+    And the "name" field should be empty                             
+    And the "recommendation_name" field should be empty              
+    When I paste the "rec_id" field
+    And I press the "Search" button   
+    Then I should see the message "Success"
+    And I should see "chocolate" in the "name" field
+    And I should see "marshmellow" in the "recommendation_name" field
 
 # Scenario: Update a Recommendation
 #     When I visit the "Home Page"
@@ -109,12 +115,12 @@ Scenario: Delete a Customer
     And I set the "rec_id" to "1"
     And I press the "Search" button
     Then I should see the message "Success"
-    When I copy the "rec_id" field 
-    And I press the "Clear" button                            
-    Then the "rec_id" field should be empty                           
+    When I copy the "rec_id" field
+    And I press the "Clear" button
+    Then the "rec_id" field should be empty
     And the "source_pid" field should be empty                       
     And the "name" field should be empty                             
     And the "recommendation_name" field should be empty              
-    When I paste the "rec_id" field                                      
+    When I paste the "rec_id" field
     And I press the "Delete" button                                  
-#    Then I should see the message "Recommendation has been Deleted!"
+    #    Then I should see the message "Recommendation has been Deleted!"
