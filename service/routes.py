@@ -1,15 +1,21 @@
 """
-My Service
+Recommendation Service
 
-Describe what your service does here
+Our recommendation service creates, lists, updates, deletes, likes, and dislikes a recommendation for a product.
 """
 
 # Import Flask application
 from flask import jsonify, request, abort, url_for, make_response
+from flask_restx import (  # pylint: disable=import-error
+    Resource,
+    fields,
+    reqparse,
+    inputs,
+)
 from flask_sqlalchemy import SQLAlchemy
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation, RecommendationType
-from . import app
+from . import app, api
 
 db = SQLAlchemy()
 
@@ -31,6 +37,74 @@ def index():
     """Root URL response"""
     return app.send_static_file("index.html")
 
+
+# Define the model so that the docs reflect what can be sent
+create_model = api.model(
+    "Recommendation",
+    {
+        "source_pid": fields.Integer(
+            required=True, description="The id of the associated product"
+        ),
+        "name": fields.String(
+            required=True, description="The name of the associated product"
+        ),
+        "recommendation_name": fields.String(
+            required=True, description="The name of the Recommendation"
+        ),
+        # pylint: disable=protected-access
+        "type": fields.String(
+            enum=RecommendationType._member_names_,
+            description="The type of the Recommendation",
+        ),
+        "number_of_likes": fields.Integer(
+            required=True, description="The number of likes of the Recommendation"
+        ),
+        "number_of_dislikes": fields.Integer(
+            required=True, description="The number of dislikes"
+        ),
+    },
+)
+
+rec_model = api.inherit(
+    "PetModel",
+    create_model,
+    {
+        "rec_id": fields.String(
+            readOnly=True, description="The unique id of the Recommendation"
+        ),
+    },
+)
+
+# query string arguments
+rec_args = reqparse.RequestParser()
+rec_args.add_argument(
+    "name",
+    type=str,
+    location="args",
+    required=False,
+    help="List Recommendations by their source product name",
+)
+rec_args.add_argument(
+    "source_pid",
+    type=int,
+    location="args",
+    required=False,
+    help="List Recommendations by their source product id",
+)
+rec_args.add_argument(
+    "recommendation_name",
+    type=str,
+    location="args",
+    required=False,
+    help="List Recommendations by its name",
+)
+rec_args.add_argument(  # not sure about this
+    "type",
+    type=str,
+    location="args",
+    required=False,
+    help="List Recommendations by its type",
+)
 
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
