@@ -8,7 +8,7 @@ import os
 import sys
 import logging
 from flask import Flask
-from flask_restx import Api  # pylint: disable=import-error
+from flask_restx import Api
 from service import config
 from service.common import log_handlers
 
@@ -34,7 +34,7 @@ api = Api(
     default="recommendations",
     default_label="Recommendation operations",
     doc="/apidocs",
-    prefix="/api",
+    prefix="/api"
 )
 
 # Dependencies require we import the routes AFTER the Flask app is created

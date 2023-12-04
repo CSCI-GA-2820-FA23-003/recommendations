@@ -5,11 +5,11 @@ Feature: The Recommendation service back-end
 
 Background:
     Given the following recommendations
-        |rec_id | source_pid | name         | recommendation_name  | type       | number_of_likes | number_of_dislikes |
-        |1      | 1          | chocolate    | marshmellow          | CROSSSELL  | 0 | 0 |
-        |2      | 2          | granola      | yogurt               | CROSSSELL  | 1 | 0 |
-        |3      | 3          | blueberry    | strawberry           | CROSSSELL  | 2 | 1 |
-        |4      | 4          | wine opener  | red wine             | ACCESSORY  | 3 | 2 |
+        | source_pid | name         | recommendation_name  | type       | number_of_likes | number_of_dislikes |
+        | 1          | chocolate    | marshmellow          | CROSSSELL  | 0 | 0 |
+        | 2          | granola      | yogurt               | CROSSSELL  | 1 | 0 |
+        | 3          | blueberry    | strawberry           | CROSSSELL  | 2 | 1 |
+        | 4          | wine opener  | red wine             | ACCESSORY  | 3 | 2 |
 
 Scenario: The server is running
     When I visit the "Home Page"

@@ -5,12 +5,12 @@ Our recommendation service creates, lists, updates, deletes, likes, and dislikes
 """
 
 # Import Flask application
-from flask import jsonify, request, abort, url_for, make_response
-from flask_restx import (  # pylint: disable=import-error
-    Resource,  # pylint: disable=import-error
-    fields,  # pylint: disable=import-error
-    reqparse,  # pylint: disable=import-error
-)  # pylint: disable=import-error
+from flask import jsonify, abort, make_response
+from flask_restx import (
+    Resource,
+    fields,
+    reqparse,
+)
 from flask_sqlalchemy import SQLAlchemy
 from service.common import status  # HTTP Status Codes
 from service.models import Recommendation, RecommendationType
@@ -33,7 +33,7 @@ def healthcheck():
 ######################################################################
 @app.route("/")
 def index():
-    """Root URL response"""
+    """Index page"""
     return app.send_static_file("index.html")
 
 
@@ -65,7 +65,7 @@ create_model = api.model(
 )
 
 rec_model = api.inherit(
-    "PetModel",
+    "RecommendationModel",
     create_model,
     {
         "rec_id": fields.Integer(
@@ -192,7 +192,7 @@ class RecommendationResource(Resource):
 ######################################################################
 #  PATH: /recommendations
 ######################################################################
-@app.route("/recommendations", strict_slashes=False)
+@api.route("/recommendations", strict_slashes=False)
 class RecommendationCollection(Resource):
     """Handles all interactions with collections of Recommendations"""
 
@@ -202,7 +202,7 @@ class RecommendationCollection(Resource):
     @api.doc("list_recs")
     @api.expect(rec_args, validate=True)
     @api.marshal_list_with(rec_model)
-    def list_all(self):
+    def get(self):  # this was list_all
         """This will list all recommendations in the database.
         Returns: a list of recommendations
         """
@@ -224,12 +224,10 @@ class RecommendationCollection(Resource):
             recommendations = Recommendation.find_by_rec_name(
                 args["recommendation_name"]
             )
-        elif args["recommendation_type"]:
-            app.logger.info("Find by type: %s", args["recommendation_type"])
+        elif args["type"]:
+            app.logger.info("Find by type: %s", args["type"])
             # create enum from string
-            type_value = getattr(
-                RecommendationType, args["recommendation_type"].upper()
-            )
+            type_value = getattr(RecommendationType, args["type"].upper())
             recommendations = Recommendation.find_by_type(type_value)
         else:
             app.logger.info("Find all")
@@ -240,7 +238,7 @@ class RecommendationCollection(Resource):
         return results, status.HTTP_200_OK
 
     # ------------------------------------------------------------------
-    # CREATE A RECOMMENDATION
+    # CREATE A NEW RECOMMENDATION
     # ------------------------------------------------------------------
     @api.doc("create_recs")
     @api.response(400, "The posted data was not valid")
@@ -250,12 +248,9 @@ class RecommendationCollection(Resource):
         """This creates a new recommendation and stores it in the database"""
 
         app.logger.info("Request to Create a Recommendation...")
-
-        data = request.get_json()
-        app.logger.info("Processing: %s", data)
-
         recommendation = Recommendation()
-        recommendation.deserialize(data)
+        app.logger.debug("Payload = %s", api.payload)
+        recommendation.deserialize(api.payload)
         recommendation.create()
         app.logger.info("Recommendation with new id [%s] saved!", recommendation.rec_id)
 
