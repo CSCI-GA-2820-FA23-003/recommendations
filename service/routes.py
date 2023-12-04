@@ -69,7 +69,7 @@ rec_model = api.inherit(
     create_model,
     {
         "rec_id": fields.Integer(
-            readOnly=True, description="The unique id of the Recommendation"
+            readOnly=True, description="The unique id assigned internally by service"
         ),
     },
 )
@@ -259,7 +259,9 @@ class RecommendationCollection(Resource):
         recommendation.create()
         app.logger.info("Recommendation with new id [%s] saved!", recommendation.rec_id)
 
-        location_url = url_for("get", rec_id=recommendation.rec_id, _external=True)
+        location_url = api.url_for(
+            RecommendationResource, rec_id=recommendation.rec_id, _external=True
+        )
 
         return (
             recommendation.serialize(),
