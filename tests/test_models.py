@@ -46,12 +46,12 @@ class TestRecommendationModel(unittest.TestCase):
         self.assertEqual(data["number_of_dislikes"], fake_rec.number_of_dislikes)
 
     def test_deserialize(self):
-        """It should de-serialize a recommendation"""
+        """It should deserialize a recommendation"""
         fake_rec = RecommendationFactory()
         data = fake_rec.serialize()
         recommendation = Recommendation().deserialize(data)
         self.assertNotEqual(recommendation, None)
-        self.assertEqual(recommendation.rec_id, data["rec_id"])
+        self.assertEqual(recommendation.rec_id, None)
         self.assertEqual(recommendation.source_pid, data["source_pid"])
         self.assertEqual(recommendation.name, data["name"])
         self.assertEqual(

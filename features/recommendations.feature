@@ -51,13 +51,12 @@ Scenario: Create a Recommendation
 
 
 Scenario: List all Recommendations
-        When I visit the "home page"
+        When I visit the "Home Page"
         And I press the "Clear" button
         And I press the "Search" button
         Then I should see the message "Success"
         And I should see "yogurt" in the results
         And I should see "strawberry" in the results
-        # And I should see "strawberry1" in the results
 
 Scenario: Search via ACCESSORY type
     When I visit the "Home Page"
