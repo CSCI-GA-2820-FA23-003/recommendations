@@ -274,6 +274,7 @@ class LikeResource(Resource):
     """Like actions on a Recommendation"""
 
     @api.doc("like_recommendations")
+    @api.response(200, "Action recorded")
     @api.response(404, "Recommendation not found")
     def put(self, rec_id):
         """Liking a Recommendation increments its like count"""
@@ -301,6 +302,7 @@ class DislikeResource(Resource):
     """Dislike actions on a Recommendation"""
 
     @api.doc("dislike_recommendations")
+    @api.response(200, "Action recorded")
     @api.response(404, "Recommendation not found")
     def put(self, rec_id):
         """Disliking a Recommendation decrements its like count"""
