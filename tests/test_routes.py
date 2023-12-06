@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.DEBUG)
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
 )
-BASE_URL = "/recommendations"
+BASE_URL = "/api/recommendations"
 
 
 ######################################################################
@@ -305,7 +305,7 @@ class TestYourResourceServer(TestCase):
     # TEST LIKE
     # ----------------------------------------------------------
     def test_like(self):
-        """It should Like a Recommendation"""
+        """It should like a Recommendation"""
         recommendations = self._create_recommendations(1)
         rec = recommendations[0]
         response = self.client.put(f"{BASE_URL}/{rec.rec_id}/like")
@@ -316,8 +316,13 @@ class TestYourResourceServer(TestCase):
         logging.debug("Response data: %s", data)
         self.assertEqual(data["number_of_likes"], 1)
 
+    def test_like_bad(self):
+        """It should not like a Recommendation that does not exist"""
+        response = self.client.put(f"{BASE_URL}/000/like")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_dislike(self):
-        """It should Dislike a Recommendation"""
+        """It should dislike a Recommendation"""
         recommendations = self._create_recommendations(1)
         rec = recommendations[0]
         response = self.client.put(f"{BASE_URL}/{rec.rec_id}/like")
@@ -328,7 +333,12 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         logging.debug("Response data: %s", data)
-        self.assertEqual(data["number_of_likes"], 0)
+        self.assertEqual(data["number_of_dislikes"], 1)
+
+    def test_dislike_bad(self):
+        """It should not dislike a Recommendation that does not exist"""
+        response = self.client.put(f"{BASE_URL}/000/dislike")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_k8s_health(self):
         """Checking health of local k8s cluster"""

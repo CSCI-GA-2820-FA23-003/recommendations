@@ -97,7 +97,6 @@ class Recommendation(db.Model):
         """
         try:
             self.name = data["name"]
-            self.rec_id = data["rec_id"]
             self.source_pid = data["source_pid"]
             self.recommendation_name = data["recommendation_name"]
             self.number_of_likes = data["number_of_likes"]
