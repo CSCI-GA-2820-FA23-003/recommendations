@@ -37,7 +37,7 @@ def step_impl(context):
     """Delete all Recommendations and load new ones"""
 
     # List all of the recommendations and delete them one by one
-    rest_endpoint = f"{context.base_url}/recommendations"
+    rest_endpoint = f"{context.base_url}/api/recommendations"
     context.resp = requests.get(rest_endpoint)
     expect(context.resp.status_code).to_equal(200)
     for rec in context.resp.json():
@@ -47,7 +47,7 @@ def step_impl(context):
     # load the database with new recommendations
     for row in context.table:
         payload = {
-            "rec_id": row["rec_id"],
+            # "rec_id": row["rec_id"],
             "source_pid": row["source_pid"],
             "name": row["name"],
             "recommendation_name": row["recommendation_name"],
@@ -56,6 +56,4 @@ def step_impl(context):
             "number_of_dislikes": row["number_of_dislikes"],
         }
         context.resp = requests.post(rest_endpoint, json=payload)
-        print("working3")
         expect(context.resp.status_code).to_equal(201)
-        print("working4")

@@ -17,7 +17,7 @@ $(function () {
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#rec_rec_id").val("");
+        // $("#rec_rec_id").val("");
         $("#rec_recommendation_name").val("");
         $("#rec_source_pid").val("");
         $("#rec_name").val("");
@@ -38,12 +38,14 @@ $(function () {
 
     $("#create-btn").click(function () {
 
+        // let rec_id = $("#rec_rec_id").val();
         let recommendation_name = $("#rec_recommendation_name").val();
         let source_pid = $("#rec_source_pid").val();
         let name = $("#rec_name").val();
         let type = $("#rec_type").val();
 
         let data = {
+            // "rec_id": rec_id,
             "recommendation_name": recommendation_name,
             "source_pid": source_pid,
             "name": name,
@@ -54,7 +56,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/recommendations",
+            url: "/api/recommendations",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -76,26 +78,32 @@ $(function () {
 
     $("#update-btn").click(function () {
 
+        let rec_id = $("#rec_rec_id").val();
         let recommendation_name = $("#rec_recommendation_name").val();
         let source_pid = $("#rec_source_pid").val();
         let name = $("#rec_name").val();
         let type = $("#rec_type").val();
+        let number_of_likes = $("#rec_number_of_likes").val();
+        let number_of_dislikes = $("#rec_number_of_dislikes").val();
 
         let data = {
+            // "rec_id": rec_id,
             "recommendation_name": recommendation_name,
             "source_pid": source_pid,
             "name": name,
             "type": type,
+            "number_of_likes": number_of_likes,
+            "number_of_dislikes": number_of_dislikes
         };
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
-                type: "PUT",
-                url: `/recommendations/${rec_id}`,
-                contentType: "application/json",
-                data: JSON.stringify(data)
-            })
+            type: "PUT",
+            url: `/api/recommendations/${rec_id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        })
 
         ajax.done(function(res){
             update_form_data(res)
@@ -120,7 +128,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/recommendations/${rec_id}`,
+            url: `/api/recommendations/${rec_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -150,7 +158,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/recommendations/${rec_id}`,
+            url: `/api/recommendations/${rec_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -213,7 +221,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/recommendations?${queryString}`,
+            url: `/api/recommendations?${queryString}`,
             contentType: "application/json",
             data: ''
         })
