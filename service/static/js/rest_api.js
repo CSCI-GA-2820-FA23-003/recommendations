@@ -1,3 +1,6 @@
+Context = {}
+
+
 $(function () {
 
     // ****************************************
@@ -223,6 +226,8 @@ $(function () {
 
         $("#flash_message").empty();
 
+        Context.queryString = queryString
+
         let ajax = $.ajax({
             type: "GET",
             url: `/api/recommendations?${queryString}`,
@@ -230,57 +235,149 @@ $(function () {
             data: ''
         })
 
-        ajax.done(function(res){
-            //alert(res.toSource())
-            $("#search_results").empty();
-            let table = '<table class="table table-striped" cellpadding="10">'
-            table += '<thead><tr>'
-            table += '<th class="col-md-1">ID</th>'
-            table += '<th class="col-md-1">Name</th>'
-            table += '<th class="col-md-1">Source ID</th>'
-            table += '<th class="col-md-1">Source Name</th>'
-            table += '<th class="col-md-2">Type</th>'
-            table += '<th class="col-md-1">like</th>'
-            table += '<th class="col-md-1">dislike</th>'
-            table += '<th class="col-md-2">like button</th>'
-            table += '<th class="col-md-2">dislike button</th>'
-            table += '</tr></thead><tbody>'
-            let firstRec = "";
-            for(let i = 0; i < res.length; i++) {
-                let rec = res[i];
-                console.log(rec)
-                console.log(rec)
-                table +=  `<tr id="row_${i}">
-                    <td>${rec.rec_id}</td>
-                    <td>${rec.recommendation_name}</td>
-                    <td>${rec.source_pid}</td>
-                    <td>${rec.name}</td>
-                    <td>${rec.type}</td>
-                    <td>${rec.number_of_dislikes}</td>
-                    <td>${rec.number_of_likes}</td>
-                    <td> <button> Like </button> </td>
-                    <td> <button> Dislike </button> </td>       
-                    </tr>
-                    `;
-                if (i == 0) {
-                    firstRec = rec;
-                }
-            }
-            table += '</tbody></table>';    
-            $("#search_results").append(table);
-
-            // copy the first result to the form
-            if (firstRec != "") {
-                update_form_data(firstRec)
-            }
-
-            flash_message("Success")
-        });
+        ajax.done(listResult);
 
         ajax.fail(function(res){
             flash_message(res.responseJSON.message)
         });
 
     });
+
+
+    function refreshOnCurrentContext(){
+        const queryString = Context.queryString
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/api/recommendations?${queryString}`,
+            contentType: "application/json",
+            data: ''
+        })
+    
+        ajax.done(listResult);
+    
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    }
+    
+    function listResult(res){
+        $("#search_results").empty();
+        let table = '<table class="table table-striped" cellpadding="10">'
+        table += '<thead><tr>'
+        table += '<th class="col-md-1">ID</th>'
+        table += '<th class="col-md-1">Name</th>'
+        table += '<th class="col-md-1">Source ID</th>'
+        table += '<th class="col-md-1">Source Name</th>'
+        table += '<th class="col-md-2">Type</th>'
+        table += '<th class="col-md-1">like</th>'
+        table += '<th class="col-md-1">dislike</th>'
+        table += '<th class="col-md-2">like button</th>'
+        table += '<th class="col-md-2">dislike button</th>'
+        table += '</tr></thead><tbody>'
+        let firstRec = "";
+        for(let i = 0; i < res.length; i++) {
+            let rec = res[i];
+            //console.log(rec)
+            //console.log(rec)
+            table +=  `<tr id="row_${i}">
+                <td>${rec.rec_id}</td>
+                <td>${rec.recommendation_name}</td>
+                <td>${rec.source_pid}</td>
+                <td>${rec.name}</td>
+                <td>${rec.type}</td>
+                <td>${rec.number_of_likes}</td>
+                <td>${rec.number_of_dislikes}</td>
+                <td> <button id="like-button-${i}"> Like </button> </td>
+                <td> <button id="dislike-button-${i}"> Dislike </button> </td>       
+                </tr>
+                `;
+            if (i == 0) {
+                firstRec = rec;
+            }
+        }            
+        table += '</tbody></table>';    
+        $("#search_results").append(table);
+    
+        $("#search_results").on("click", "button[id^='like-button-']", function() {
+            // This function will be triggered when a like button is clicked
+            const index = $(this).attr('id').split('-').pop();
+            obj = res[index]
+            update_like(obj)
+        });
+    
+        $("#search_results").on("click", "button[id^='dislike-button-']", function() {
+            // This function will be triggered when a dislike button is clicked
+            let index = $(this).attr('id').split('-').pop();
+            obj = res[index]
+            update_dislike(obj)
+        });
+        /*
+        // copy the first result to the form
+        if (firstRec != "") {
+            update_form_data(firstRec)
+        }
+        */  
+    }
+    
+    function update_like(obj){
+        const {rec_id,recommendation_name,source_pid, name, type, number_of_likes, number_of_dislikes} = obj
+        let data = {
+            "recommendation_name": recommendation_name,
+            "source_pid": source_pid,
+            "name": name,
+            "type": type,
+            "number_of_likes": number_of_likes+1,
+            "number_of_dislikes": number_of_dislikes
+        };
+    
+        $("#flash_message").empty();
+    
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/api/recommendations/${rec_id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        })
+    
+        ajax.done(function(res){
+            flash_message("Success")
+            refreshOnCurrentContext();
+        });
+    
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    }
+    
+    function update_dislike(obj){
+        const {rec_id,recommendation_name,source_pid, name, type, number_of_likes, number_of_dislikes} = obj
+        let data = {
+            "recommendation_name": recommendation_name,
+            "source_pid": source_pid,
+            "name": name,
+            "type": type,
+            "number_of_likes": number_of_likes,
+            "number_of_dislikes": number_of_dislikes+1
+        };
+    
+        $("#flash_message").empty();
+    
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/api/recommendations/${rec_id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        })
+    
+        ajax.done(function(res){
+            flash_message("Success")
+            refreshOnCurrentContext()
+        });
+    
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    }
+
 
 })
