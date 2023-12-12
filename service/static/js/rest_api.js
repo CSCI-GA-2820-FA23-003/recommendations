@@ -235,16 +235,33 @@ $(function () {
             $("#search_results").empty();
             let table = '<table class="table table-striped" cellpadding="10">'
             table += '<thead><tr>'
-            table += '<th class="col-md-2">ID</th>'
-            table += '<th class="col-md-2">Name</th>'
-            table += '<th class="col-md-2">Source ID</th>'
-            table += '<th class="col-md-2">Source Name</th>'
+            table += '<th class="col-md-1">ID</th>'
+            table += '<th class="col-md-1">Name</th>'
+            table += '<th class="col-md-1">Source ID</th>'
+            table += '<th class="col-md-1">Source Name</th>'
             table += '<th class="col-md-2">Type</th>'
+            table += '<th class="col-md-1">like</th>'
+            table += '<th class="col-md-1">dislike</th>'
+            table += '<th class="col-md-2">like button</th>'
+            table += '<th class="col-md-2">dislike button</th>'
             table += '</tr></thead><tbody>'
             let firstRec = "";
             for(let i = 0; i < res.length; i++) {
                 let rec = res[i];
-                table +=  `<tr id="row_${i}"><td>${rec.rec_id}</td><td>${rec.recommendation_name}</td><td>${rec.source_pid}</td><td>${rec.name}</td><td>${rec.type}</td></tr>`;
+                console.log(rec)
+                console.log(rec)
+                table +=  `<tr id="row_${i}">
+                    <td>${rec.rec_id}</td>
+                    <td>${rec.recommendation_name}</td>
+                    <td>${rec.source_pid}</td>
+                    <td>${rec.name}</td>
+                    <td>${rec.type}</td>
+                    <td>${rec.number_of_dislikes}</td>
+                    <td>${rec.number_of_likes}</td>
+                    <td> <button> Like </button> </td>
+                    <td> <button> Dislike </button> </td>       
+                    </tr>
+                    `;
                 if (i == 0) {
                     firstRec = rec;
                 }
