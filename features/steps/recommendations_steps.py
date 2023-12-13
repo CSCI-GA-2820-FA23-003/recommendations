@@ -51,7 +51,7 @@ def step_impl(context):
             "source_pid": row["source_pid"],
             "name": row["name"],
             "recommendation_name": row["recommendation_name"],
-            "type": row["type"],
+            "type": row["type"].upper(),
             "number_of_likes": row["number_of_likes"],
             "number_of_dislikes": row["number_of_dislikes"],
         }
