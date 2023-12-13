@@ -122,3 +122,11 @@ Scenario: Delete a Customer
     Then I should see the message "Success"
     When I press the "Delete" button                                  
     Then I should see the message "Recommendation has been Deleted!"   
+
+Scenario: Like a Recommendation
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I press the "Search" button
+    Then I should see content table
+    When I press the "Like" button at index "0"
+    Then the number of likes at index "0" should increase by 1

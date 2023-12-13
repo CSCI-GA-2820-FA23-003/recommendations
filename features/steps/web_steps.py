@@ -173,3 +173,81 @@ def step_impl(context, element_name, text_string):
     )
     element.clear()
     element.send_keys(text_string)
+
+
+### BDD test for like button
+
+
+@then("I should see content table")
+def step_impl(context):
+    # Wait for the content table to be present and visible
+    WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.visibility_of_element_located((By.ID, "content-table"))
+    )
+    # Find the content table
+    content_table = context.driver.find_element(By.ID, "content-table")
+
+    # Assert that the content table is present and visible
+    assert (
+        content_table.is_displayed()
+    ), "Content table with ID 'content-table' is not visible."
+
+
+@when('I press the "Like" button at index "{index}"')
+def step_impl(context, index):
+    # Find the element that displays the number of likes
+    likes_id = f"like-{index}"
+    likes_element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, likes_id))
+    )
+    context.initial_likes = int(likes_element.text)
+
+    # Click the like button
+    like_button_id = f"like-button-{index}"
+    like_button = context.driver.find_element(By.ID, like_button_id)
+    like_button.click()
+
+
+@then('the number of likes at index "{index}" should increase by 1')
+def step_impl(context, index):
+    likes_id = f"like-{index}"
+    WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.staleness_of(context.driver.find_element(By.ID, likes_id))
+    )
+    likes_element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, likes_id))
+    )
+    new_likes = int(likes_element.text)
+    assert (
+        new_likes == context.initial_likes + 1
+    ), "Like count did not increase as expected."
+
+
+@when('I press the "Dislike" button at index "{index}"')
+def step_impl(context, index):
+    dislikes_id = f"dislike-{index}"
+    dislikes_element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, dislikes_id))
+    )
+    context.initial_dislikes = int(dislikes_element.text)
+
+    dislike_button_id = f"dislike-button-{index}"
+    dislike_button = context.driver.find_element(By.ID, dislike_button_id)
+    dislike_button.click()
+
+
+@then('the number of dislikes at index "{index}" should increase by 1')
+def step_impl(context, index):
+    dislikes_id = f"dislike-{index}"
+    WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.staleness_of(
+            context.driver.find_element(By.ID, dislikes_id)
+        )
+    )
+    dislikes_element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, dislikes_id))
+    )
+    new_dislikes = int(dislikes_element.text)
+    assert (
+        new_dislikes == context.initial_dislikes + 1
+    ), "Dislike count did not increase as expected."

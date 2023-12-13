@@ -261,8 +261,10 @@ $(function () {
     }
     
     function listResult(res){
+        flash_message("Success")
+
         $("#search_results").empty();
-        let table = '<table class="table table-striped" cellpadding="10">'
+        let table = '<table class="table table-striped" cellpadding="10" id="content-table">'
         table += '<thead><tr>'
         table += '<th class="col-md-1">ID</th>'
         table += '<th class="col-md-1">Name</th>'
@@ -285,8 +287,8 @@ $(function () {
                 <td>${rec.source_pid}</td>
                 <td>${rec.name}</td>
                 <td>${rec.type}</td>
-                <td>${rec.number_of_likes}</td>
-                <td>${rec.number_of_dislikes}</td>
+                <td> <p id="like-${i}"> ${rec.number_of_likes} </p> </td>
+                <td> <p id="dislike-${i}"> ${rec.number_of_dislikes} </p> </td>
                 <td> <button id="like-button-${i}"> Like </button> </td>
                 <td> <button id="dislike-button-${i}"> Dislike </button> </td>       
                 </tr>
@@ -311,12 +313,12 @@ $(function () {
             obj = res[index]
             update_dislike(obj)
         });
-        /*
+        
         // copy the first result to the form
         if (firstRec != "") {
             update_form_data(firstRec)
         }
-        */  
+          
     }
     
     function update_like(obj){
