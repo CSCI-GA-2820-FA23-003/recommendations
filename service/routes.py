@@ -292,7 +292,6 @@ class LikeResource(Resource):
         )
         return recommendation.serialize(), status.HTTP_200_OK
 
-
 ######################################################################
 #  PATH: /recommendations/{id}/dislike
 ######################################################################
@@ -319,3 +318,4 @@ class DislikeResource(Resource):
             "Recommendation with id [%s] has been disliked!", recommendation.rec_id
         )
         return recommendation.serialize(), status.HTTP_200_OK
+    
