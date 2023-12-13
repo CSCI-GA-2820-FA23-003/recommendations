@@ -297,7 +297,7 @@ $(function () {
     // DisLike a Recommendation
     // ****************************************
 
-    $("#like-btn").click(function () {
+    $("#dislike-btn").click(function () {
 
         let rec_id = $("#rec_rec_id").val();
 
