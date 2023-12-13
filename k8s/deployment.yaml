@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: recommendation
   labels:
-    app: recommendation
+    app: recommendations
 spec:
   replicas: 1
   strategy:
