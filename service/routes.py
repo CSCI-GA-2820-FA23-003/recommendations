@@ -1,7 +1,6 @@
 """
 Recommendation Service
-
-Our recommendation service creates, lists, updates, deletes, likes, and dislikes 
+Our recommendation service creates, lists, updates, deletes, likes, and dislikes
 a recommendation for a product.
 """
 
