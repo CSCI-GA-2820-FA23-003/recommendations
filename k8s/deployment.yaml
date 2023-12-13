@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: recommendations
+  name: recommendation
   labels:
-    app: recommendations
+    app: recommendation
 spec:
   replicas: 1
   strategy:
@@ -13,15 +13,15 @@ spec:
       maxUnavailable: 0  
   selector:
     matchLabels:
-      app: recommendations
+      app: recommendation
   template:
     metadata:
       labels:
-        app: recommendations
+        app: recommendation
     spec:
       restartPolicy: Always
       containers:
-      - name: recommendations
+      - name: recommendation
         image: cluster-registry:32000/recommendation:latest
         imagePullPolicy: IfNotPresent
         ports:
