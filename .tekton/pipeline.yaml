@@ -91,7 +91,7 @@ spec:
         - name: ARGS
           value: $(params.GREEN_ARGS)
         - name: SECRET_NAME
-          value: postgres-creds
+          value: my-secret
         - name: SECRET_KEY
           value: database_uri
       runAfter:
