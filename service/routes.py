@@ -1,7 +1,9 @@
 """
 Recommendation Service
 
-Our recommendation service creates, lists, updates, deletes, likes, and dislikes a recommendation for a product.
+Our recommendation service creates, lists, updates, deletes,
+
+likes, and dislikes a recommendation for a product.
 """
 
 # Import Flask application
