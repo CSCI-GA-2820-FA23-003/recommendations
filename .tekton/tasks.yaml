@@ -145,3 +145,60 @@ spec:
           echo Applying manifests in $(inputs.params.manifest_dir) directory
           oc apply -f $(inputs.params.manifest_dir)
           echo -----------------------------------
+
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: bdd
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/categories: Testing
+    tekton.dev/pipelines.minVersion: "0.17.0"
+    tekton.dev/tags: python, behave
+    tekton.dev/displayName: "bdd tests"
+    tekton.dev/platforms: "linux/amd64"
+spec:
+  workspaces:
+    - name: source
+  description: >-
+    This task can be used to perform BDD tests with behave.
+    If you define a secret with the key `database_uri`
+    it will create an environment variable named DATABASE_URI
+    that can be used to connect to a test database.
+  params:
+    - name: SECRET_NAME
+      description: The name of the secret containing a database_uri key
+      type: string
+      default: "my-secret"
+    - name: SECRET_KEY
+      description: The name of the key that contains the database uri
+      type: string
+      default: "database_uri"
+    - name: BASE_URL
+      description: The url that behave will interact with
+      type: string
+  steps:
+    - name: behave
+      image: rofrano/pipeline-selenium:latest
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: $(params.SECRET_KEY)
+        - name: BASE_URL
+          value: $(params.BASE_URL)
+      script: |
+        #!/bin/bash
+        set -e
+        echo $PATH
+        echo $(params.BASE_URL)
+        echo "***** Installing dependencies *****"
+        python -m pip install --upgrade pip wheel
+        pip install -qr requirements.txt
+        echo "***** Running Tests *****"
+        behave
+
