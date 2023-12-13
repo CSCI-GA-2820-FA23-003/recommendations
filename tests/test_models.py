@@ -3,20 +3,22 @@ Test cases for Recommendations Model
 
 """
 import unittest
+# import logging
+import os
 from service.models import DataValidationError, Recommendation, RecommendationType
 from tests.factories import RecommendationFactory
-import logging
-from service import app
-import os
+# from service import app
+
 ######################################################################
 #  Recommendation  M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
 
 DATABASE_URI = os.getenv(
-    "DATABASE_URI", 
+    "DATABASE_URI",
     "postgresql+psycopg://postgres:postgres@localhost:5432/testdb"
     )
+
 
 class TestRecommendationModel(unittest.TestCase):
     """Test Cases for Recommendation Model"""
@@ -24,10 +26,10 @@ class TestRecommendationModel(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """This runs once before the entire test suite"""
-        app.config["TESTING"] = True
-        app.config["DEBUG"] = False
-        app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
-        app.logger.setLevel(logging.CRITICAL)
+        # app.config["TESTING"] = True
+        # app.config["DEBUG"] = False
+        # app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+        # app.logger.setLevel(logging.CRITICAL)
 
     @classmethod
     def tearDownClass(cls):
