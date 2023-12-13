@@ -301,6 +301,20 @@ class TestYourResourceServer(TestCase):
         for rec in data:
             self.assertEqual(rec["type"], test_type.name)
 
+    def test_query_by_product_id(self):
+        """It should Query Recommendations by a source product id"""
+        recommendations = self._create_recommendations(5)
+        test_id = recommendations[0].source_pid
+        print(test_id)
+        name_count = len([rec for rec in recommendations if rec.source_pid == test_id])
+        response = self.client.get(BASE_URL, query_string=f"source_pid={test_id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+        # check the data just to be sure
+        for rec in data:
+            self.assertEqual(rec["source_pid"], test_id)
+
     # ----------------------------------------------------------
     # TEST LIKE
     # ----------------------------------------------------------
