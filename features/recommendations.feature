@@ -41,22 +41,13 @@ Scenario: Create a Recommendation
     And I should see "0" in the "number_of_likes" field
     And I should see "1" in the "number_of_dislikes" field
 
-# Scenario: List all Recommendations
-#     When I visit the "Home Page"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should not see "leo" in the results
-
-
 Scenario: List all Recommendations
-        When I visit the "Home Page"
-        And I press the "Clear" button
-        And I press the "Search" button
-        Then I should see the message "Success"
-        And I should see "yogurt" in the results
-        And I should see "strawberry" in the results
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "yogurt" in the results
+    And I should see "strawberry" in the results
 
 Scenario: Search via ACCESSORY type
     When I visit the "Home Page"
@@ -121,4 +112,20 @@ Scenario: Delete a Customer
     And I press the "Search" button
     Then I should see the message "Success"
     When I press the "Delete" button                                  
-    Then I should see the message "Recommendation has been Deleted!"   
+    Then I should see the message "Recommendation has been Deleted!"
+
+Scenario: Like and Dislike a recommendation
+    When I visit the "Home Page"
+    And I set the "rec_id" to "1"
+    And I set the "source_pid" to "0"
+    And I set the "name" to "water"
+    And I set the "recommendation_name" to "watermelon"
+    And I select "Upsell" in the "type" dropdown
+    And I set the "number_of_likes" to "0"
+    And I set the "number_of_dislikes" to "1"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I press the "like" button
+    Then I should see "1" in the "number_of_likes" field
+    When I press the "dislike" button
+    Then I should see "2" in the "number_of_dislikes" field
