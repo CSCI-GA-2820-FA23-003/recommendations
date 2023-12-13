@@ -99,20 +99,3 @@ data:
 # kubectl create secret generic postgres-creds \
 #     --from-literal=password=$POSTGRES_PASSWORD
 #     --from-literal=database_uri=$DATABASE_URI
-#
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: postgres-creds
-# data:
-#   password: cG9zdGdyZXM=
-#   database_uri: |
-#       cG9zdGdyZXNxbCtwc3ljb3BnOi8vcG9zdGdyZXM6cG9zdGdyZXNAcG9zdGdyZXM6NTQzMi9wb3N0Z3Jlcwo=
-
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: my-secret
-# data:
-#   POSTGRES_PASSWORD: cG9zdGdyZXM=
-#   database_uri: cG9zdGdyZXNxbCtwc3ljb3BnOi8vcG9zdGdyZXM6cG9zdGdyZXNAcG9zdGdyZXM6NTQzMi9wb3N0Z3Jlcwo=
