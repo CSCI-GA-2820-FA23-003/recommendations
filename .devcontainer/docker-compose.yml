@@ -18,7 +18,7 @@ services:
       FLASK_DEBUG: "True"
       PORT: 8080
       GUNICORN_BIND: "0.0.0.0:8080"
-      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/postgres
+      DATABASE_URI: postgresql+psycopg://postgres:postgres@postgres:5432/postgres
     networks:
       - dev
     depends_on:
