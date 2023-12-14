@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: recommendation
   labels:
-    app: recommendations
+    app: recommendation
 spec:
   replicas: 1
   strategy:
@@ -13,11 +13,11 @@ spec:
       maxUnavailable: 0  
   selector:
     matchLabels:
-      app: recommendations
+      app: recommendation
   template:
     metadata:
       labels:
-        app: recommendations
+        app: recommendation
     spec:
       restartPolicy: Always
       containers:
