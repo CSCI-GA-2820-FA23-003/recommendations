@@ -13,11 +13,11 @@ spec:
       maxUnavailable: 0  
   selector:
     matchLabels:
-      app: recommendation
+      app: recommendations
   template:
     metadata:
       labels:
-        app: recommendation
+        app: recommendations
     spec:
       restartPolicy: Always
       containers:
