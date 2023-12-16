@@ -23,7 +23,7 @@ spec:
       containers:
       - name: recommendations
         image: cluster-registry:32000/recommendations:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
           protocol: TCP
