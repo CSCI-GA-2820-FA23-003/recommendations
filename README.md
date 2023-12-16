@@ -9,7 +9,7 @@
 ## Overview
 
 - This project involves designing, planning, building, and deploying a cloud-native microservice (Recommendation service) that is the part of an eCommerce website.
-- The recommendations service is a representation of a product recommendation based on another product. In essence, it is just a relationship between two products that "go together" (e.g., radio and batteries, printers and ink, shirts and pants, etc.). It could also recommend based on what other customers have purchased like "customers who bought item A usually buy item B". Recommendations have 3 different types: cross-sell, up-sell, and accessories.
+- The recommendations service is a representation of a product recommendation based on another product. In essence, it is just a relationship between two products that "go together" (e.g. radio and batteries, printers and ink, shirts and pants, etc.). It could also recommend based on what other customers have purchased like "customers who bought item A usually buy item B". Recommendations have 3 different types: cross-sell, up-sell, and accessories.
 
 
 ## REST API Endpoints
