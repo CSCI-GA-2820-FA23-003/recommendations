@@ -89,7 +89,7 @@ metadata:
   name: postgres-config
 data:
   postgres_user: postgres
-  postgres_db: recommendations 
+  postgres_db: recommendation
 ---
 # This secret can also be created from the command line using environment variables
 # export DATABASE_URI='postgresql://<place-url-to-database-here>'
