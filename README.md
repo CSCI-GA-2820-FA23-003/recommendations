@@ -134,9 +134,9 @@ k8s/                  - kubernetes yaml file
     ```make cluster```
 - Docker Image Preparation and Tag 
   - We need to build the Docker image of the project, tag it. 
-  ```docker build -t recommendation:1.0 .```
+  ```docker build -t recommendations:1.0 .```
 
-    ```docker tag recommendation:1.0 cluster-registry:32000/customer:1.0```
+    ```docker tag recommendations:1.0 cluster-registry:32000/recommendations:1.0```
 
 - Add to etc/hosts 
   - Before pushing, ensure that cluster-registry:32000 is mapped to 127.0.0.1 in your /etc/hosts file.
@@ -146,7 +146,7 @@ k8s/                  - kubernetes yaml file
 - Push the image to the repository 
   - After building and tagging the Docker image. Push it to your registry.
 
-    ```docker push cluster-registry:32000/recommendation:1.0```
+    ```docker push cluster-registry:32000/recommendations:1.0```
 
 - Deploying on Kubernetes
   - To deploy the Postgres database as a StatefulSet along with the image we created, run the following:
